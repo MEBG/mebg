@@ -1,0 +1,4 @@
+Current version is prototyped using Twilio to receive and send text messages, with an ubuntu aws instance running yaws to serve the responses.
+
+The phone number is 514-700-2210
+The server ip is 54.83.19.52
