@@ -1,5 +1,4 @@
 #mebg#
-
 Bike shop membership / orders / inventory management
 
 * low-tech, accessible to everyone everywhere
@@ -7,8 +6,6 @@ Bike shop membership / orders / inventory management
 
 
 ##Overview##
-
-
 The main mode of interaction with the system is using text messages (via a new MEBG phone number), with a basic web app for admin, reports and general information.
 
 The focus is on a minimum set of key actions:
@@ -28,11 +25,9 @@ Estimated cost is $1/mo for a sms-only phone number, plus $0.0075 per text messa
 
 
 ##Actions##
-
-Commands can be issued to the system by texting the action name (with parameters if required) to the MEBG phone number. Each person interacting with the system is recognized by their phone number. To mirror the current structure, a person can be a Volunteer, a Member, or Unrecognized. Each class of user can invoke certain actions.
+Text messages sent to the MEBG phone number are interpreted as commands: action name followed by parameters. Each person interacting with the system is recognized by their phone number. To mirror the current structure, a person can be a Volunteer, a Member, or Unrecognized. Each class of user can invoke certain actions.
 
 ###Actions from Unrecognized persons###
-
 A person with no membership can:
 
 * request a membership: `SIGN UP [<month>|<year>] [<first>[<last name>]]`
@@ -41,8 +36,7 @@ A person with no membership can:
 A membership request will be pending until an on-shift volunteer acknowledges receipt of cash.
 
 ###Member actions###
-
-A person with a membership can:
+A person with a membership can also:
 
 * check if their membership is still valid: `VERIFY`
 * request a membership renewal: `RENEW [<month>|<year>]`
@@ -53,51 +47,48 @@ A person with a membership can:
 Any renewal request or deposit request will be pending until an on-shift volunteer acknowledges receipt of cash.
 
 ###Volunteer actions###
-
 Volunteers have two kinds of actions available to them:
 
-* simple actions like signing in / out, and all of above Member actions
+* basic actions like signing in / out, status, order, deposit, balance
 * member-related actions (responses to requests made by Members)
 
-####Simple actions####
+Invoked by a volunteer, the Deposit action does not require a confirnation response.
 
-A volunteer can notify the system of their presence at the shop by signing in and out. This allows the system to route member requests to volunteers which are present. Volunteer signups are validated by admin.
+####Basic actions####
+A volunteer can notify the system of their presence at the shop by signing in and out. This allows the system to route member requests to volunteers which are present.
 
 * sign up as a volunteer: `VOLUNTEER <first><last name> <email@address>`
 * begin shift: `[OPEN|BEGIN|IN]`
 * end shift: `[CLOSE|END|OUT]`
 
-####Response actions####
+Volunteer signups are validated by admin.
 
+####Response actions####
 On-shift volunteer(s) will receive membership / renewal / deposit requests via the system, one at a time. They can respond in the affirmative (`TRUE|YES|OK|ACCEPT`) to acknowledge receipt of funds from the member, or in the negative (`FALSE|NO|CANCEL|DENY`) to dismiss the request as unfulfilled. In the affirmative case, the member receives a text message that constitutes a receipt.
 
 
 ##Reports##
-
 Reports are available via the web app. Since interactions with the web app can reveal potentially confidential information (as well as affect balances and part counts) authentication is required. 
 
-To authenticate:
+To authenticate in browser:
 
 * submit your phone number via login form
 * system sends a text message with a numeric code
 * submit the code on 2nd form
 * browser session authenticated
 
-Your computer / device will remain authenticated (unless you clear cache etc) so this should be an infrequent interaction.
+Your device will remain authenticated (unless you clear cache etc) so this should be an infrequent interaction.
 
 ###Order list report###
-
 This report allows a volunteer to review the list of ordered parts, and check off specific parts as bought / delivered.
 When parts are marked as delivered, the system will send notification texts to members who ordered these parts.
 
 ###Other reports###
-
 * memberships
 * income from stock sold
 * inventory
 
 ##General info##
-
 A landing page for non-authenticated visitors:
 
 * logo, address, hours
