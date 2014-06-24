@@ -27,11 +27,13 @@ Estimated cost is $1/mo for a sms-only phone number, plus $0.0075 per text messa
 ##Actions##
 Text messages sent to the MEBG phone number are interpreted as commands: action name followed by parameters. Each person interacting with the system is recognized by their phone number. To mirror the current structure, a person can be a Volunteer, a Member, or Unrecognized. Each class of user can invoke certain actions.
 
+
 ###Actions from Unrecognized persons###
 A person with no membership can:
 
-* request a membership: `SIGN UP [<month>|<year>] [<first>[<last name>]]`
 * check if coop is open: `STATUS`
+* request a membership: `SIGN UP [<month>|<year>] [<first>[<last name>]]`
+* sign up as a volunteer: `VOLUNTEER <first><last name> <email@address>`
 
 A membership request will be pending until an on-shift volunteer acknowledges receipt of cash.
 
@@ -47,24 +49,47 @@ A person with a membership can also:
 Any renewal request or deposit request will be pending until an on-shift volunteer acknowledges receipt of cash.
 
 ###Volunteer actions###
-Volunteers have two kinds of actions available to them:
+Actions available to volunteers fall into three categories:
 
-* basic actions like signing in / out, status, order, deposit, balance
-* member-related actions (responses to requests made by Members)
-
-Invoked by a volunteer, the Deposit action does not require a confirnation response.
+* basic actions like order, deposit etc
+* schedule-related actions
+* responses to member requests
 
 ####Basic actions####
-A volunteer can notify the system of their presence at the shop by signing in and out. This allows the system to route member requests to volunteers which are present.
+Volunteers can invoke most of the Member actions:
 
-* sign up as a volunteer: `VOLUNTEER <first><last name> <email@address>`
-* begin shift: `[OPEN|BEGIN|IN]`
-* end shift: `[CLOSE|END|OUT]`
+* deposit (does not require confirmation)
+* check balance
+* order part
+* check status
 
-Volunteer signups are validated by admin.
+####Schedule actions####
+A volunteer can notify the system of their presence at the shop by signing in and out. This allows the system to route member requests to volunteers which are present. The two actions are:
+
+* begin shift: `OPEN|BEGIN|IN`
+* end shift: `CLOSE|END|OUT`
+
+The system tracks the schedules of all volunteers so that members may know if the shop will be open at a given time. To facilitate this, volunteers can:
+
+* add a day to schedule: `MONDAY|TUESDAY|...|SUNDAY [<start time> <end time>]`
+* remove a day from schedule: `NOT MONDAY|TUESDAY|...|SUNDAY`
+* drop a shift: `DROP [<date>]`
+* pick up a dropped shift: `PICKUP`
+
+When a volunteer drops a shift, all other volunteers receive a notification. Responding with `PICKUP` indicates the intent to fill in for that shift.
+
+Sometimes a volunteer may not be available for a long time (vacation, busy with other things). To manage extended absences, there are two actions:
+
+* go away (no more messages / struck from schedule): `AWAY`
+* return (reactivate all interactions): `BACK`
 
 ####Response actions####
-On-shift volunteer(s) will receive membership / renewal / deposit requests via the system, one at a time. They can respond in the affirmative (`TRUE|YES|OK|ACCEPT`) to acknowledge receipt of funds from the member, or in the negative (`FALSE|NO|CANCEL|DENY`) to dismiss the request as unfulfilled. In the affirmative case, the member receives a text message that constitutes a receipt.
+On-shift volunteer(s) will receive membership / renewal / deposit requests via the system, one request per volunteer at a time. They can respond in the affirmative to acknowledge receipt of funds from the member, or in the negative to dismiss the request as unfulfilled. In the affirmative case, the member receives a text message that constitutes a receipt.
+
+The action keywords are:
+
+* confirm: `TRUE|YES|OK|ACCEPT|CONFIRM`
+* deny: `FALSE|NO|CANCEL|DENY`
 
 
 ##Reports##
