@@ -63,6 +63,10 @@ Volunteers can invoke most of the Member actions:
 * order part
 * check status
 
+Additionally, volunteers can ask to restock supplies:
+* order supplies for the shop: `RESTOCK <sku>`
+
+
 ####Schedule actions####
 A volunteer can notify the system of their presence at the shop by signing in and out. This allows the system to route member requests to volunteers which are present. The two actions are:
 
