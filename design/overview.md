@@ -33,9 +33,12 @@ A person with no membership can:
 
 * check if coop is open: `STATUS`
 * request a membership: `SIGN UP [<month>|<year>] [<first>[<last name>]]`
+* transfer existing (paper) membership: `TRANSFER <join date> [<month>|<year>] [<first>[<last name>]]`
 * sign up as a volunteer: `VOLUNTEER <first><last name> <email@address>`
 
 A membership request will be pending until an on-shift volunteer acknowledges receipt of cash.
+
+A volunteer signup request is approved when all current volunteers respond with approval.
 
 ###Member actions###
 A person with a membership can also:
@@ -45,6 +48,7 @@ A person with a membership can also:
 * order a part from Babac catalogue: `ORDER <sku>`
 * make a deposit: `DEPOSIT <amount>`
 * check their balance: `BALANCE`
+* pay for parts or supplies: `PAY <amount> <sku>`
 
 Any renewal request or deposit request will be pending until an on-shift volunteer acknowledges receipt of cash.
 
