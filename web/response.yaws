@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Message>
+       <erl>
+         out(Arg) ->
+            {ok, From} = queryvar(Arg, "From"),
+            {ok, Body} = queryvar(Arg, "Body"),
+            rcvr ! {From, Body},
+            {content, "text/xml", ["<From>", From, "</From><Body>", Body, "</Body>"]}.
+       </erl>
+    </Message>
+</Response>
