@@ -12,7 +12,6 @@ loop(Present) ->
          io:format("shop open: ~p~n", [maps:size(Present) > 0]),
          loop(Present);
       {Volunteer, Number, arrive} ->
-         io:format("arrived"),
          Exists = maps:is_key(Number, Present),
          if
             not Exists ->

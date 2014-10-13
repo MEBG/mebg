@@ -1,8 +1,5 @@
 -module(volunteer).
--export([loop/0, name/0]).
-
-name() ->
-   {first,last}.
+-export([loop/0]).
 
 loop() ->
    receive
@@ -10,8 +7,7 @@ loop() ->
          coop ! {self(), Number, arrive},
          loop();
       {Number, "depart", _} ->
-         coop ! {Number, depart},
-         loop();
+         coop ! {Number, depart};
       {Number, Action, Arguments} ->
          io:format("(V): ~p called ~p with ~p~n", [Number, Action, Arguments]),
          loop()
