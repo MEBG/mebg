@@ -1,4 +1,5 @@
-% this process spawns new processes corresponding to received sms
+% this process parses incoming sms and
+% forwards the message to main process
 -module(receiver).
 -export([loop/0]).
 
@@ -6,22 +7,25 @@ loop() ->
    Volunteers = ["111","222"],
    Members = ["123","234","345"],
    receive
-      {From, Body} ->
-         IsVolunteer = string:str(Volunteers, [From]) > 0,
-         IsMember = string:str(Members, [From]) > 0,
-         Tokens = string:tokens(Body, " "),
+      {Number, Body} ->
+         % lowercase + tokenize body of message
+         Tokens = string:tokens(string:to_lower(Body), " "),
          [Action|Arguments] = Tokens,
+         % awkward, will be replaced with db lookup
+         IsVolunteer = string:str(Volunteers, [Number]) > 0,
+         IsMember = string:str(Members, [Number]) > 0,
          if
             IsVolunteer ->
-               io:format("~p (volunteer) sent ~p~n", [From,Body]),
-               P = spawn(volunteer, loop, []);
+               io:format("volunteer~n"),
+               Role = volunteer;
             IsMember ->
-               io:format("~p (member) sent ~p~n", [From,Body]),
-               P = spawn(member, loop, []);
+               io:format("member~n"),
+               Role = member;
             true ->
-               io:format("~p (unknown) sent ~p~n", [From,Body]),
-               P = spawn(unknown, loop, [])
-         end,
-         P ! {From, Action, Arguments},
+               io:format("not known~n"),
+               Role = unknown
+         end, % ..of awkward section
+         % forward parsed message to shop process
+         coop ! {Number, Role, Action, Arguments},
          loop()
    end.
