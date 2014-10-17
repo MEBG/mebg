@@ -53,7 +53,7 @@ loop(Present) ->
          io:format("received signup request from new member:"),
          io:format("~p [~p]~n", [Number, Arguments]),
          % create a process to wait for response
-         U = spawn(unknown, loop, []),
+         U = spawn(unknown, init, [{Number,Arguments}]),
          Open = maps:size(Present) > 0,
          if
             Open ->
@@ -73,7 +73,7 @@ loop(Present) ->
 
       % catch-all for debugging
       {Number, Role, Action, Arguments} ->
-         io:format("received '~p ~p' ", [Action, Arguments]),
+         io:format("(default) received '~p ~p' ", [Action, Arguments]),
          io:format("from ~p (~p)~n", [Number, Role]),
          loop(Present);
 
