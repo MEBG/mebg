@@ -3,29 +3,32 @@
 -module(receiver).
 -export([loop/0]).
 
+
 loop() ->
-   Volunteers = ["111","222"],
-   Members = ["123","234","345"],
    receive
       {Number, Body} ->
          % lowercase + tokenize body of message
          Tokens = string:tokens(string:to_lower(Body), " "),
-         [Action|Arguments] = Tokens,
-         % awkward, will be replaced with db lookup
-         IsVolunteer = string:str(Volunteers, [Number]) > 0,
-         IsMember = string:str(Members, [Number]) > 0,
-         if
-            IsVolunteer ->
-               io:format("volunteer~n"),
-               Role = volunteer;
-            IsMember ->
-               io:format("member~n"),
-               Role = member;
-            true ->
-               io:format("not known~n"),
-               Role = unknown
-         end, % ..of awkward section
+         [A|Arguments] = Tokens,
+         Action = list_to_atom(A),
+
+         Role = get_role(Number),
+         io:format("role: ~p~n",[Role]),
+         io:format("action: ~p~n",[Action]),
+
          % forward parsed message to shop process
          coop ! {Number, Role, Action, Arguments},
          loop()
+   end.
+
+% retrieve role of person associated with given number (if known)
+get_role(Number) ->
+   sqlite3:open(main),
+   [{columns, _}, {rows, Rows}] = sqlite3:read(main, person, {phone, Number}),
+   if
+      [] =/= Rows ->
+         [{_,_,Role,_,_,_}] = Rows,
+         list_to_atom(binary_to_list(Role));
+      true ->
+         unknown
    end.

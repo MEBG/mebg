@@ -7,7 +7,7 @@
 loop(Present) ->
    receive
       % volunteer arrival
-      {Number, volunteer, "arrive", _} ->
+      {Number, volunteer, arrive, _} ->
          Exists = maps:is_key(Number, Present),
          if
             not Exists ->
@@ -18,7 +18,7 @@ loop(Present) ->
          end;
       % volunteer departure
       % what if there's a request pending!?
-      {Number, volunteer, "depart", _} ->
+      {Number, volunteer, depart, _} ->
          Exists = maps:is_key(Number, Present),
          if
             Exists ->
@@ -29,7 +29,7 @@ loop(Present) ->
                loop(Present)
          end;
       % approval of signup request by volunteer
-      {Number, volunteer, "approve", _} ->
+      {Number, volunteer, approve, _} ->
          Exists = maps:is_key(Number, Present),
          if
             Exists ->
@@ -38,7 +38,7 @@ loop(Present) ->
          end,
          loop(Present);
       % denial of signup request by volunteer
-      {Number, volunteer, "deny", _} ->
+      {Number, volunteer, deny, _} ->
          Exists = maps:is_key(Number, Present),
          if
             Exists ->
@@ -49,7 +49,7 @@ loop(Present) ->
          loop(Present);
 
       % signup request from unknown number
-      {Number, unknown, "signup", Arguments} ->
+      {Number, unknown, signup, Arguments} ->
          io:format("received signup request from new member:"),
          io:format("~p [~p]~n", [Number, Arguments]),
          % create a process to wait for response
@@ -67,7 +67,7 @@ loop(Present) ->
          end;
 
       % "is the shop open" query
-      {_, _, "status", _} ->
+      {_, _, status, _} ->
          io:format("shop open: ~p~n", [maps:size(Present) > 0]),
          loop(Present);
 
