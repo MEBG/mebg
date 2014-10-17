@@ -50,8 +50,6 @@ loop(Present) ->
 
       % signup request from unknown number
       {Number, unknown, signup, Arguments} ->
-         io:format("received signup request from new member:"),
-         io:format("~p [~p]~n", [Number, Arguments]),
          % create a process to wait for response
          U = spawn(unknown, init, [{Number,Arguments}]),
          Open = maps:size(Present) > 0,
@@ -67,8 +65,15 @@ loop(Present) ->
          end;
 
       % "is the shop open" query
-      {_, _, status, _} ->
-         io:format("shop open: ~p~n", [maps:size(Present) > 0]),
+      {Number, _, status, _} ->
+         Open = maps:size(Present) > 0,
+         if
+            Open ->
+               Message = "The bike shop is currently open.";
+            not Open ->
+               Message = "The bike shop is closed right now."
+         end,
+         sender:send(Number, Message),
          loop(Present);
 
       % catch-all for debugging

@@ -2,12 +2,10 @@
 -export([init/1, loop/3]).
 
 init({Number, [Duration]}) ->
-   io:format("only duration: ~p~n", [Duration]),
    Expiry = expiry(Duration),
    loop(Number, Expiry, [""]);
 
 init({Number, [Duration | Name]}) ->
-   io:format("duration: ~p and name: ~p~n", [Duration,Name]),
    Expiry = expiry(Duration),
    loop(Number, Expiry, Name).
 
@@ -17,12 +15,12 @@ loop(Number, Expiry, Name) ->
       approved ->
          save_member(Number, Expiry, Name),
          % send SMS notification
-         io:format("(U): signup approved~n");
+         sender:send(Number, "Membership request approved");
       denied ->
          % send SMS notification
-         io:format("(U): signup denied~n")
+         sender:send(Number, "Membership request denied");
    after 600000 -> % 10 minute timeout
-      io:format("(U): signup request timed out~n")         
+      sender:send(Number, "Membership request timed out");
    end.
 
 % calculate expiration date given duration of "month" or "year"
