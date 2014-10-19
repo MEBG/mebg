@@ -15,6 +15,14 @@ loop(Number, Expiry, Name) ->
       approved ->
          FullName = lists:concat(lists:flatmap(fun(X)->[X," "] end, Name)),
          db:save_member(Number, Expiry, FullName),
+         % update cashbox balance
+         if
+            Expiry == "year" ->
+               Amount = 20;
+            true ->
+               Amount = 5
+         end,
+         box ! {deposit, Amount},
          % send SMS notification
          sender:send(Number, "Membership request approved");
       denied ->

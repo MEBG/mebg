@@ -6,21 +6,20 @@
 loop(Balance) ->
    receive
       {deposit, Amount} ->
-         io:format("$~p deposited~n", [Amount]),
          loop(Balance + Amount);
-      {withdraw, Amount} when Amount < 0 ->
-         io:format("cannot withdraw a negative amount~n"),
+      {Pid, withdraw, Amount} when Amount < 0 ->
+         Pid ! {cashbox, Balance},
          loop(Balance);
-      {withdraw, Amount} when Amount =< Balance ->
-         io:format("$~p withdrawn~n", [Amount]),
+      {Pid, withdraw, Amount} when Amount =< Balance ->
+         Pid ! {cashbox, Balance - Amount},
          loop(Balance - Amount);
-      {withdraw, _} when Balance =< 0 ->
-         io:format("current balance is zero, cannot withdraw~n"),
+      {Pid, withdraw, _} when Balance =< 0 ->
+         Pid ! {cashbox, Balance},
          loop(Balance);
-      {withdraw, _} ->
-         io:format("error: cannot withdraw more than current balance~n"),
+      {Pid, withdraw, _} ->
+         Pid ! {cashbox, Balance},
          loop(Balance);
-      balance ->
-         io:format("current balance is $~p~n", [Balance]),
+      {Pid, balance} ->
+         Pid ! {cashbox, Balance},
          loop(Balance)
    end.
