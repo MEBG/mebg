@@ -14,6 +14,6 @@ loop(Number) ->
                sender:send(Number, "membership valid")
          end;
       balance ->
-         % todo: format message string
-         sender:send(Number, db:get_balance(Number))
+         Balance = io_lib:format("Your balance is $~p", [db:get_balance(Number)]),
+         sender:send(Number, lists:flatten(Balance))
    end.
