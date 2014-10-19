@@ -6,7 +6,7 @@
 loop() ->
    receive
       % handle signup request
-      {Pid, signup, Arguments} ->
+      {Pid, signup} ->
          % send outgoing SMS to this volunteer
          signup(Pid);
       % terminate process on "depart"

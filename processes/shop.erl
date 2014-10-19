@@ -33,7 +33,8 @@ loop(Present) ->
          if
             Exists ->
                V = maps:get(Number, Present),
-               V ! approved
+               V ! approved;
+            true -> void
          end,
          loop(Present);
       % denial of signup request by volunteer
@@ -43,7 +44,8 @@ loop(Present) ->
             Exists ->
                V = maps:get(Number, Present),
                V ! denied,
-               loop(Present)
+               loop(Present);
+            true -> void
          end,
          loop(Present);
 
@@ -67,7 +69,7 @@ loop(Present) ->
             Open ->
                % grab first volunteer (for now)
                [V|_] = maps:values(Present),
-               V ! {U, signup, Arguments},
+               V ! {U, signup},
                loop(Present);
             true ->
                U ! denied,

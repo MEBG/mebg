@@ -1,5 +1,5 @@
 -module(db).
--export([get_role/1,get_expiry/1,get_balance/1]).
+-export([save_member/3,get_role/1,get_expiry/1,get_balance/1]).
 
 open() ->
    sqlite3:open(main).
@@ -8,7 +8,7 @@ close() ->
    sqlite3:close(main).
 
 % store new member information in db
-save_member(Number, Expiry, FullName) ->
+save_member(Number, Expiry, Name) ->
    open(),
    sqlite3:write(main, person,[
       {name, Name},
