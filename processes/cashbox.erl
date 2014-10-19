@@ -7,6 +7,10 @@ loop(Balance) ->
    receive
       {deposit, Amount} ->
          loop(Balance + Amount);
+      {signup, "year"} ->
+         loop(Balance + 20);
+      {signup, "month"} ->
+         loop(Balance + 5);
       {Pid, withdraw, Amount} when Amount < 0 ->
          Pid ! {cashbox, Balance},
          loop(Balance);

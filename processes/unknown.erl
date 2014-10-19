@@ -1,28 +1,22 @@
 -module(unknown).
--export([init/1, loop/3]).
+-export([init/1, loop/4]).
 
 init({Number, [Duration]}) ->
    Expiry = expiry(Duration),
-   loop(Number, Expiry, [""]);
+   loop(Number, Expiry, Duration, [""]);
 
 init({Number, [Duration | Name]}) ->
    Expiry = expiry(Duration),
-   loop(Number, Expiry, Name).
+   loop(Number, Expiry, Duration, Name).
 
 % main process loop, wait for confirm/deny
-loop(Number, Expiry, Name) ->
+loop(Number, Expiry, Duration, Name) ->
    receive
       approved ->
          FullName = lists:concat(lists:flatmap(fun(X)->[X," "] end, Name)),
          db:save_member(Number, Expiry, FullName),
          % update cashbox balance
-         if
-            Expiry == "year" ->
-               Amount = 20;
-            true ->
-               Amount = 5
-         end,
-         box ! {deposit, Amount},
+         box ! {signup, Duration},
          % send SMS notification
          sender:send(Number, "Membership request approved");
       denied ->
