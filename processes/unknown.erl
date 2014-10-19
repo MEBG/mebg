@@ -13,14 +13,15 @@ init({Number, [Duration | Name]}) ->
 loop(Number, Expiry, Name) ->
    receive
       approved ->
-         save_member(Number, Expiry, Name),
+         FullName = lists:concat(lists:flatmap(fun(X)->[X," "] end, Name)),
+         db:save_member(Number, Expiry, FullName),
          % send SMS notification
          sender:send(Number, "Membership request approved");
       denied ->
          % send SMS notification
-         sender:send(Number, "Membership request denied");
+         sender:send(Number, "Membership request denied")
    after 600000 -> % 10 minute timeout
-      sender:send(Number, "Membership request timed out");
+      sender:send(Number, "Membership request timed out")
    end.
 
 % calculate expiration date given duration of "month" or "year"
@@ -33,17 +34,4 @@ expiry(Duration) ->
       true -> %default of 1 month
          Days + 30
    end.
-
-% store new member information in db
-save_member(Name, Number, Expiry) ->
-   FullName = lists:concat(lists:flatmap(fun(X)->[X," "] end, Name)),
-   sqlite3:open(main),
-   sqlite3:write(main, person,[
-      {name, FullName},
-      {phone, Number},
-      {expiry, Expiry},
-      {role, "member"},
-      {balance, 0.0}
-   ]),
-   sqlite3:close(main).
 
