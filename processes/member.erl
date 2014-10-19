@@ -1,9 +1,19 @@
 -module(member).
--export([loop/0]).
+-export([loop/1]).
 
-loop() ->
+loop(Number) ->
    receive
-      {Number, Action, Arguments} ->
-         io:format("(M): ~p called ~p with ~p~n", [Number, Action, Arguments]),
-         loop()
+      verify ->
+         Expiry = db:get_expiry(Number),
+         {Date,_} = erlang:localtime(),
+         Today = calendar:date_to_gregorian_days(Date),
+         if
+            Today > Expiry ->
+               sender:send(Number, "membership expired");
+            true ->
+               sender:send(Number, "membership valid")
+         end;
+      balance ->
+         % todo: format message string
+         sender:send(Number, db:get_balance(Number))
    end.

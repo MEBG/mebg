@@ -17,7 +17,6 @@ loop(Present) ->
                loop(Present)
          end;
       % volunteer departure
-      % what if there's a request pending!?
       {Number, volunteer, depart, _} ->
          Exists = maps:is_key(Number, Present),
          if
@@ -46,6 +45,17 @@ loop(Present) ->
                V ! denied,
                loop(Present)
          end,
+         loop(Present);
+
+      % membership inquiry
+      {Number, member, verify, _} ->
+         M = spawn(member, loop, [Number]),
+         M ! verify,
+         loop(Present);
+      % balance inquiry
+      {Number, member, balance, _} ->
+         M = spawn(member, loop, [Number]),
+         M ! balance,
          loop(Present);
 
       % signup request from unknown number
