@@ -33,7 +33,7 @@ A person with no membership can:
 
 * check if coop is open: `STATUS`
 * request a membership: `SIGN UP [<month>|<year>] [<first>[<last name>]]`
-* transfer existing (paper) membership: `TRANSFER <join date> [<month>|<year>] [<first>[<last name>]]`
+* transfer existing paper membership: `TRANSFER <join date> [<month>|<year>] [<first>[<last name>]]`
 * sign up as a volunteer: `VOLUNTEER <first><last name> <email@address>`
 
 A membership request will be pending until an on-shift volunteer acknowledges receipt of cash.
@@ -48,7 +48,6 @@ A person with a membership can also:
 * order a part from Babac catalogue: `ORDER <sku>`
 * make a deposit: `DEPOSIT <amount>`
 * check their balance: `BALANCE`
-* pay for parts or supplies: `PAY <amount> <sku>`
 
 Any renewal request or deposit request will be pending until an on-shift volunteer acknowledges receipt of cash.
 
@@ -67,15 +66,16 @@ Volunteers can invoke most of the Member actions:
 * order part
 * check status
 
-Additionally, volunteers can ask to restock supplies:
-* order supplies for the shop: `RESTOCK <sku>`
+Additionally, volunteers can:
 
+* order supplies for the shop: `RESTOCK <sku>`
+* receive cash from members `RECEIVE <amount>`
 
 ####Schedule actions####
 A volunteer can notify the system of their presence at the shop by signing in and out. This allows the system to route member requests to volunteers which are present. The two actions are:
 
-* begin shift: `OPEN|BEGIN|IN`
-* end shift: `CLOSE|END|OUT`
+* begin shift: `ARRIVE`
+* end shift: `DEPART`
 
 The system tracks the schedules of all volunteers so that members may know if the shop will be open at a given time. To facilitate this, volunteers can:
 
@@ -96,8 +96,8 @@ On-shift volunteer(s) will receive membership / renewal / deposit requests via t
 
 The action keywords are:
 
-* confirm: `TRUE|YES|OK|ACCEPT|CONFIRM`
-* deny: `FALSE|NO|CANCEL|DENY`
+* confirm: `APPROVE`
+* deny: `DENY`
 
 
 ##Reports##
