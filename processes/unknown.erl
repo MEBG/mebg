@@ -1,6 +1,9 @@
 -module(unknown).
 -export([init/1, loop/4]).
 
+init({Number, []}) ->
+   init({Number, "week"});
+
 init({Number, [Duration]}) ->
    Expiry = expiry(Duration),
    loop(Number, Expiry, Duration, [""]);
