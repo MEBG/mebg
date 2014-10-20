@@ -20,8 +20,18 @@ save_member(Number, Expiry, Name) ->
    close().
 
 get_role(Number) ->
-   Number.
-
+   open(),
+   [{columns, _}, {rows, Rows}] = sqlite3:read(main, person, {phone, Number}),
+   close(),
+   if
+      [] =/= Rows ->
+         [{_,_,Role,_,_,_}] = Rows,
+         %take heed: http://erlang.org/doc/apps/erts/erl_ext_dist.html#utf8_atoms
+         binary_to_atom(Role, latin1);
+      true ->
+         unknown
+   end.
+   
 get_expiry(Number) ->
    open(),
    [{columns, _}, {rows, Rows}] = sqlite3:read(main, person, {phone, Number}),
