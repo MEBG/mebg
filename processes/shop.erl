@@ -12,6 +12,7 @@ loop(Present) ->
          if
             not Exists ->
                V = spawn(volunteer,loop,[]),
+               db:set_presence(Number,true),
                loop(maps:put(Number, V, Present));
             true ->
                loop(Present)
@@ -23,6 +24,7 @@ loop(Present) ->
             Exists ->
                V = maps:get(Number, Present),
                V ! goodbye,               
+               db:set_presence(Number,false),
                loop(maps:without([Number], Present));
             true ->
                loop(Present)

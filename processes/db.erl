@@ -71,3 +71,18 @@ get_transaction_balance() ->
       ),
    close(),
    Balance.
+
+% store "arrive" and "depart" instances
+set_presence(Number, Present) ->
+   open(),
+   % awkward two-step
+   [{_,_},{_,[{PersonId}]}] = sqlite3:sql_exec(main,
+      lists:concat(["SELECT id FROM person WHERE phone = \"",
+         Number, "\";"])
+   ),
+   sqlite3:write(main, presence, [
+      {present, Present},
+      {timestamp, epoch()},
+      {person_id, PersonId}
+      ]),
+   close().

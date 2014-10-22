@@ -32,6 +32,13 @@ tables() ->
       {id, integer, [primary_key]},
       {sku, text},
       {count, integer}
+   ]),
+
+   sqlite3:create_table(main, presence, [
+      {id, integer, [primary_key]},
+      {present, boolean},
+      {timestamp, integer},
+      {person_id, integer}
    ]).
 
 init() ->
