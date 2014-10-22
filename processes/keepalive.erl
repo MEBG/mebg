@@ -2,8 +2,14 @@
 -module(keepalive).
 -export([launch/4, launch/0]).
 
+% initial value of cashbox spawn arguments
+default_cashbox() -> [db:get_transaction_balance()].
+
+% initial value of coop spawn arguments
+default_coop() -> [#{}].
+
 launch(Name, Module, Fun, Args) ->
-   Pid = spawn(Module,Fun,Args),
+   Pid = spawn(Module,Fun,Args()),
    register(Name,Pid),
    spawn(fun() ->
       Ref = monitor(process, Pid),
@@ -17,8 +23,10 @@ launch(Name, Module, Fun, Args) ->
       end
    end).
 
-% launch all registered processes
+% launch system
 launch() ->
-   launch(box,cashbox,loop,[0]),
-   launch(coop,shop,loop,[#{}]),
-   launch(rcvr,receiver,loop,[]).
+   inets:start(),
+   launch(box,cashbox,loop,fun() -> default_cashbox() end),
+   launch(coop,shop,loop,fun() -> default_coop() end),
+   launch(rcvr,receiver,loop, fun() -> [] end).
+

@@ -1,5 +1,6 @@
 -module(db).
--export([save_member/3,get_role/1,get_expiry/1,get_balance/1]).
+% -export([save_member/3,get_role/1,get_expiry/1,get_balance/1]).
+-compile(export_all).
 
 open() ->
    sqlite3:open(main).
@@ -44,4 +45,29 @@ get_balance(Number) ->
    [{columns, _}, {rows, Rows}] = sqlite3:read(main, person, {phone, Number}),
    close(),
    [{_,_,_,_,_,Balance}] = Rows,
+   Balance.
+
+
+epoch() ->
+    now_to_seconds(now()).
+
+now_to_seconds({Mega, Sec, _}) ->
+    (Mega * 1000000) + Sec.
+
+store_transaction(Amount, Balance) ->
+   open(),
+   sqlite3:write(main, transactions, [
+      {date, epoch()},
+      {amount, Amount},
+      {balance, Balance}
+   ]),
+   close().
+
+% retrieve the last known cashbox balance
+get_transaction_balance() ->
+   open(),
+   [{_,_},{_,[{Balance}]}] = sqlite3:sql_exec(main,
+      "SELECT balance FROM transactions ORDER BY date DESC LIMIT 1;"
+      ),
+   close(),
    Balance.
