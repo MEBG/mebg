@@ -1,12 +1,12 @@
 % for launching registered processes that must keep running
 -module(keepalive).
--export([launch/4, launch/0]).
+-export([launch/4, init/0]).
 
 % initial value of cashbox spawn arguments
-default_cashbox() -> [db:get_transaction_balance()].
+initial_cashbox() -> [db:get_transaction_balance()].
 
 % initial value of coop spawn arguments
-default_coop() -> [#{}].
+initial_coop() -> [#{}].
 
 launch(Name, Module, Fun, Args) ->
    Pid = spawn(Module,Fun,Args()),
@@ -24,9 +24,8 @@ launch(Name, Module, Fun, Args) ->
    end).
 
 % launch system
-launch() ->
+init() ->
    inets:start(),
-   launch(box,cashbox,loop,fun() -> default_cashbox() end),
-   launch(coop,shop,loop,fun() -> default_coop() end),
+   launch(box,cashbox,loop,fun() -> initial_cashbox() end),
+   launch(coop,shop,loop,fun() -> initial_coop() end),
    launch(rcvr,receiver,loop, fun() -> [] end).
-
