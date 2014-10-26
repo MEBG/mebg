@@ -2,11 +2,29 @@
 % -export([save_member/3,get_role/1,get_expiry/1,get_balance/1]).
 -compile(export_all).
 
+% datetime conversion
+epoch() ->
+    now_to_seconds(now()).
+now_to_seconds({Mega, Sec, _}) ->
+    (Mega * 1000000) + Sec.
+
 open() ->
    sqlite3:open(main).
 
 close() ->
    sqlite3:close(main).
+
+get_rows(Table, Filter) ->
+   open(),
+   [{_,_}, {_,Rows}] = sqlite3:read(main, Table, Filter),
+   close(),
+   Rows.
+
+
+%
+% person
+%
+%
 
 % store new member information in db
 save_member(Number, Expiry, Name) ->
@@ -20,39 +38,41 @@ save_member(Number, Expiry, Name) ->
    ]),
    close().
 
+% retrieve info of matching person from storage
+% or create a new unknown person if not found
+get_person(Number) ->
+   get_person_from_rows(Number,
+      get_rows(person, {phone, Number})).
+
+get_person_from_rows(Number, Rows) when Rows == [] ->
+   {void, Number, unknown, void, void, void};
+get_person_from_rows(Number, Rows) ->
+   [{PersonId, _, Role, Name, Expiry, Balance}] = Rows,
+   {
+      PersonId,
+      Number,
+      binary_to_atom(Role, latin1),
+      binary_to_list(Name),
+      Expiry,
+      Balance
+   }.
+
 get_role(Number) ->
-   open(),
-   [{columns, _}, {rows, Rows}] = sqlite3:read(main, person, {phone, Number}),
-   close(),
-   if
-      [] =/= Rows ->
-         [{_,_,Role,_,_,_}] = Rows,
-         %take heed: http://erlang.org/doc/apps/erts/erl_ext_dist.html#utf8_atoms
-         binary_to_atom(Role, latin1);
-      true ->
-         unknown
-   end.
-   
+   {_,_,Role,_,_,_} = get_person(Number),
+   Role.
+
 get_expiry(Number) ->
-   open(),
-   [{columns, _}, {rows, Rows}] = sqlite3:read(main, person, {phone, Number}),
-   close(),
-   [{_,_,_,_,Expiry,_}] = Rows,
+   {_,_,_,_,Expiry,_} = get_person(Number),
    Expiry.
 
 get_balance(Number) ->
-   open(),
-   [{columns, _}, {rows, Rows}] = sqlite3:read(main, person, {phone, Number}),
-   close(),
-   [{_,_,_,_,_,Balance}] = Rows,
+   {_,_,_,_,_,Balance} = get_person(Number),
    Balance.
 
 
-epoch() ->
-    now_to_seconds(now()).
-
-now_to_seconds({Mega, Sec, _}) ->
-    (Mega * 1000000) + Sec.
+%
+% transactions
+%
 
 store_transaction(Amount, Balance) ->
    open(),
