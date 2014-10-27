@@ -8,11 +8,11 @@ loop(Present) ->
    receive
       % volunteer arrival
       {{_,Number,volunteer,_,_,_}, arrive, _} ->
-         io:format('received arrive~n'),
          Exists = maps:is_key(Number, Present),
          if
             not Exists ->
                V = spawn(volunteer,loop,[Number]),
+               sender:send(Number, "Welcome!"),
                db:set_presence(Number,true),
                loop(maps:put(Number, V, Present));
             true ->
