@@ -57,6 +57,10 @@ get_person_from_rows(Number, Rows) ->
       Balance
    }.
 
+get_name(Number) ->
+   {_,_,_,Name,_,_} = get_person(Number),
+   Name.
+
 get_role(Number) ->
    {_,_,Role,_,_,_} = get_person(Number),
    Role.

@@ -7,14 +7,14 @@
 loop(Present) ->
    receive
       % volunteer arrival
-      {{_,Number,volunteer,_,_,_}, arrive, _} ->
+      {{_,Number,volunteer,Name,_,_}, arrive, _} ->
          Exists = maps:is_key(Number, Present),
          if
             not Exists ->
                V = spawn(volunteer,loop,[Number]),
-               sender:send(Number, "Welcome!"),
+               sender:send(Number, greetings:hello()),
                db:set_presence(Number,true),
-               loop(maps:put(Number, V, Present));
+               loop(maps:put(Number, {V,Name}, Present));
             true ->
                loop(Present)
          end;
@@ -37,7 +37,7 @@ loop(Present) ->
          Exists = maps:is_key(Number, Present),
          if
             Exists ->
-               V = maps:get(Number, Present),
+               {V,_} = maps:get(Number, Present),
                V ! approved;
             true -> void
          end,
@@ -48,7 +48,7 @@ loop(Present) ->
          Exists = maps:is_key(Number, Present),
          if
             Exists ->
-               V = maps:get(Number, Present),
+               {V,_} = maps:get(Number, Present),
                V ! denied,
                loop(Present);
             true -> void
@@ -75,7 +75,7 @@ loop(Present) ->
          if
             Open ->
                % grab first volunteer (for now)
-               [V|_] = maps:values(Present),
+               [{V,_}|_] = maps:values(Present),
                V ! {U, signup},
                loop(Present);
             true ->
@@ -88,16 +88,18 @@ loop(Present) ->
          Open = maps:size(Present) > 0,
          if
             Open ->
-               Message = "The bike shop is currently open.";
+               Names = [Name||{_,Name}<-maps:values(Present)],
+               Message = greetings:open(Names);
             not Open ->
-               Message = "The bike shop is closed right now."
+               Message = greetings:closed()
          end,
          sender:send(Number, Message),
          loop(Present);
 
       % for in-shell debugging
       present ->
-         io:format("present volunteers: ~p~n", [Present]),
+         Names = [Name || {_,Name} <- maps:values(Present)],
+         io:format("present volunteers: ~p~n", [Names]),
          loop(Present);
       isOpen ->
          io:format("shop open: ~p~n", [maps:size(Present) > 0]),

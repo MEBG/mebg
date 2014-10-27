@@ -12,7 +12,7 @@ loop(Number) ->
          signup(Number, Pid);
       % terminate process on "depart"
       goodbye ->
-         sender:send(Number, "Goodbye!");
+         sender:send(Number, greetings:bye());
       Other ->
          io:format("unexpected message sent to volunteer: ~p~n", [Other]),
          loop(Number)
