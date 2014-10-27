@@ -7,18 +7,20 @@
 loop(Present) ->
    receive
       % volunteer arrival
-      {Number, volunteer, arrive, _} ->
+      {{_,Number,volunteer,_,_,_}, arrive, _} ->
+         io:format('received arrive~n'),
          Exists = maps:is_key(Number, Present),
          if
             not Exists ->
-               V = spawn(volunteer,loop,[]),
+               V = spawn(volunteer,loop,[Number]),
                db:set_presence(Number,true),
                loop(maps:put(Number, V, Present));
             true ->
                loop(Present)
          end;
+
       % volunteer departure
-      {Number, volunteer, depart, _} ->
+      {{_,Number,volunteer,_,_,_}, depart, _} ->
          Exists = maps:is_key(Number, Present),
          if
             Exists ->
@@ -29,8 +31,9 @@ loop(Present) ->
             true ->
                loop(Present)
          end;
-      % approval of signup request by volunteer
-      {Number, volunteer, approve, _} ->
+
+      % approval of member signup request by volunteer
+      {{_,Number,volunteer,_,_,_}, approve, _} ->
          Exists = maps:is_key(Number, Present),
          if
             Exists ->
@@ -39,8 +42,9 @@ loop(Present) ->
             true -> void
          end,
          loop(Present);
-      % denial of signup request by volunteer
-      {Number, volunteer, deny, _} ->
+
+      % denial of member signup request by volunteer
+      {{_,Number,volunteer,_,_,_}, deny, _} ->
          Exists = maps:is_key(Number, Present),
          if
             Exists ->
@@ -52,18 +56,19 @@ loop(Present) ->
          loop(Present);
 
       % membership inquiry
-      {Number, member, verify, _} ->
+      {{_,Number,member,_,_,_}, verify, _} ->
          M = spawn(member, loop, [Number]),
          M ! verify,
          loop(Present);
+
       % balance inquiry
-      {Number, member, balance, _} ->
+      {{_,Number,member,_,_,_}, balance, _} ->
          M = spawn(member, loop, [Number]),
          M ! balance,
          loop(Present);
 
       % signup request from unknown number
-      {Number, unknown, signup, Arguments} ->
+     {{_,Number,unknown,_,_,_}, signup, Arguments} ->
          % create a process to wait for response
          U = spawn(unknown, init, [{Number,Arguments}]),
          Open = maps:size(Present) > 0,
@@ -79,7 +84,7 @@ loop(Present) ->
          end;
 
       % "is the shop open" query
-      {Number, _, status, _} ->
+      {{_,Number,_,_,_,_}, status, _} ->
          Open = maps:size(Present) > 0,
          if
             Open ->
@@ -90,17 +95,14 @@ loop(Present) ->
          sender:send(Number, Message),
          loop(Present);
 
-      % catch-all for debugging
-      {Number, Role, Action, Arguments} ->
-         io:format("(default) received '~p ~p' ", [Action, Arguments]),
-         io:format("from ~p (~p)~n", [Number, Role]),
-         loop(Present);
-
       % for in-shell debugging
       present ->
          io:format("present volunteers: ~p~n", [Present]),
          loop(Present);
       isOpen ->
          io:format("shop open: ~p~n", [maps:size(Present) > 0]),
+         loop(Present);
+      {Other} ->
+         io:format("shop default unrecognized: ~p~n", [Other]),
          loop(Present)
    end.
