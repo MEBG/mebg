@@ -98,6 +98,15 @@ loop(Present) ->
          sender:send(Number, Message),
          loop(Present);
 
+      % default response
+      {{_,Number,_,_,_,_},_,_} ->
+         Message = [
+            "Mile End Bike Garage, 135 rue Van Horne, 2nd floor. ",
+            "Open 6pm to 9pm on weekdays. Visit http://bikegarage.org for more information."
+            ],
+         sender:send(Number, lists:concat(Message)),
+         loop(Present);
+
       % for in-shell debugging
       present ->
          Names = [Name || {_,Name} <- maps:values(Present)],
