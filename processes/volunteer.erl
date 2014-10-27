@@ -36,7 +36,7 @@ signup(Number, Pid) ->
       denied ->
          Pid ! denied,
          loop(Number)
-   after 500000 -> % 5 minute timeout
+   after 300000 -> % 5 minute timeout
       Pid ! denied,
       io:format("(V): signup request timed out~n"),
       loop(Number)
