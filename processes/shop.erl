@@ -24,8 +24,8 @@ loop(Present) ->
          Exists = maps:is_key(Number, Present),
          if
             Exists ->
-               V = maps:get(Number, Present),
-               V ! goodbye,               
+               {V,_} = maps:get(Number, Present),
+               V ! goodbye,
                db:set_presence(Number,false),
                loop(maps:without([Number], Present));
             true ->
