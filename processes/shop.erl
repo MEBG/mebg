@@ -7,7 +7,8 @@
 loop(Present) ->
    receive
       % volunteer arrival
-      {{_,Number,volunteer,Name,_,_}, arrive, _} ->
+      {{_,Number,volunteer,Name,_,_}, Action, _} when
+            Action == arrive; Action == in; Action == open ->
          Exists = maps:is_key(Number, Present),
          if
             not Exists ->
@@ -20,7 +21,8 @@ loop(Present) ->
          end;
 
       % volunteer departure
-      {{_,Number,volunteer,_,_,_}, depart, _} ->
+      {{_,Number,volunteer,_,_,_}, Action, _} when
+            Action == depart; Action == out; Action == close ->
          Exists = maps:is_key(Number, Present),
          if
             Exists ->
