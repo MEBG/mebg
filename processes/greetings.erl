@@ -12,12 +12,12 @@ hello() ->
       "It's been a while, pardner",
       "Nice to see you",
       "Where have YOU been?",
-      "Welcome to the jungle..",
+      "Once more unto the breach",
       "Nice day!",
       "G'day mate",
       "A good day to wrench around..",
       "Uhh, sorry about the mess..",
-      "I think we're out of chain breakers..",
+      "Hi. I think we're out of chain breakers..",
       "Bienvenidos compadre!"
    ],
    get_random(M).
@@ -26,10 +26,10 @@ bye() ->
    M = [
       "So long!",
       "Thanks for bringin' it brah!",
-      "And good riddance to you, sir!.",
+      "And good riddance to you, sir!",
       "Til next time!",
-      "Good times, see ya!",
-      "Thought you'd never leave..",
+      "Good times.. see ya!",
+      "Sheesh, thought you'd never leave..",
       "Until we meet again..",
       "Take some of the empties with ya, eh?"
    ],
