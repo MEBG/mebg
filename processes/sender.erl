@@ -1,19 +1,40 @@
-% functionality to dispatch outgoing sms
+% process dispatching outgoing sms
 
 -module(sender).
--export([send/2,sms/2]).
+-export([loop/1]).
 
-sms(Number, Message) ->
-   io:format("SMS to be sent to ~p: ~p~n", [Number,Message]).
+loop(Mode) ->
+   receive
+      {mode, test} -> loop(test);
+      {mode, normal} -> loop(normal);
+      {send, Number, Message} when normal == Mode ->
+         send(Number,Message),
+         loop(Mode);
+      {send, Number, Message} when test == Mode ->
+         test_send(Number,Message),
+         loop(Mode)
+   end.
+
 
 send(Number, Message) ->
    {Username, Password} = secrets:twilio_auth(),
-   UrlBase = "api.twilio.com/2010-04-01/Accounts/ACa66dd367e3772ec8696f298dd7e528a5/Messages.json",
+   UrlBase = lists:concat([
+      "api.twilio.com/2010-04-01/Accounts/",
+      Username,"/Messages.json"]),
    Url = ["https://", Username, ":", Password, "@", UrlBase],
-   Parameters = ["From=",secrets:twilio_number(),"&To=",Number, "&Body=", Message],
-   httpc:request(post, 
+   Parameters = [
+      "From=",secrets:twilio_number(),
+      "&To=",Number,
+      "&Body=", Message],
+   io:format("sending to ~p: ~p~n", [Number,Message]),
+   % fail hard on any error
+   {ok,{{"HTTP/1.1",201,"CREATED"},_,_}} = httpc:request(post, 
        {lists:flatten(Url), [], 
        "application/x-www-form-urlencoded",
        lists:flatten(Parameters)
-       }, [], []),
-   io:format("SMS to ~p sent: ~p~n", [Number,Message]).
+       }, [], []).
+
+test_send(Number, Message) ->
+   % test_sms_receiver!{Number,Message}.
+   io:format("SMS to be sent to ~p: ~p~n", [Number,Message]).
+

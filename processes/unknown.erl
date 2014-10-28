@@ -21,12 +21,12 @@ loop(Number, Expiry, Duration, Name) ->
          % update cashbox balance
          box ! {signup, Duration},
          % send SMS notification
-         sender:send(Number, "Membership request approved");
+         sms ! {send, Number, "Membership request approved"};
       denied ->
          % send SMS notification
-         sender:send(Number, "Membership request denied")
+         sms ! {send, Number, "Membership request denied"}
    after 600000 -> % 10 minute timeout
-      sender:send(Number, "Membership request timed out")
+      sms ! {send, Number, "Membership request timed out"}
    end.
 
 % calculate expiration date given duration of "month" or "year"

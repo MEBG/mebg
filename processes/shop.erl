@@ -13,7 +13,7 @@ loop(Present) ->
          if
             not Exists ->
                V = spawn(volunteer,loop,[Number]),
-               sender:send(Number, greetings:hello()),
+               sms ! {send, Number, greetings:hello()},
                db:set_presence(Number,true),
                loop(maps:put(Number, {V,Name}, Present));
             true ->
@@ -95,7 +95,7 @@ loop(Present) ->
             not Open ->
                Message = greetings:closed()
          end,
-         sender:send(Number, Message),
+         sms ! {send, Number, Message},
          loop(Present);
 
       % default response
@@ -104,7 +104,7 @@ loop(Present) ->
             "Mile End Bike Garage, 135 rue Van Horne, 2nd floor. ",
             "Open 6pm to 9pm on weekdays. Visit http://bikegarage.org for more information."
             ],
-         sender:send(Number, lists:concat(Message)),
+         sms ! {send, Number, lists:concat(Message)},
          loop(Present);
 
       % for in-shell debugging
