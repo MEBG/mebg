@@ -35,6 +35,6 @@ send(Number, Message) ->
        }, [], []).
 
 test_send(Number, Message) ->
-   % test:send(Number,Message),
-   io:format("SMS to be sent to ~p: ~p~n", [Number,Message]).
+   io:format("SMS to be sent to ~p: ~p~n", [Number,Message]),
+   test_relay!{send,Number,Message}.
 
