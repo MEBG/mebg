@@ -19,7 +19,7 @@ loop(Number) ->
    after 900000 -> % check every 15 minutes
       {_,{Hour,_,_}} = erlang:localtime(),
       if
-         Hour < 17 orelse Hour > 22 -> % magic numbers, bad form
+         Hour < 17 orelse Hour > 21 -> % magic numbers, bad form
             sms ! {send, Number, "Schedule bot signed you out"},
             coop!{{void,Number,volunteer,void,void,void},depart,void};
          true ->
