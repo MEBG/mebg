@@ -8,7 +8,11 @@ loop(Present) ->
    receive
       % volunteer arrival
       {{_,Number,volunteer,Name,_,_}, Action, _} when
-            Action == arrive; Action == in; Action == open ->
+            Action == i;
+            Action == in;
+            Action == here;
+            Action == arrive;
+            Action == open ->
          Exists = maps:is_key(Number, Present),
          if
             not Exists ->
@@ -22,7 +26,11 @@ loop(Present) ->
 
       % volunteer departure
       {{_,Number,volunteer,_,_,_}, Action, _} when
-            Action == depart; Action == out; Action == close ->
+            Action == o;
+            Action == out;
+            Action == leave;
+            Action == depart;
+            Action == close ->
          Exists = maps:is_key(Number, Present),
          if
             Exists ->
@@ -86,7 +94,9 @@ loop(Present) ->
          end;
 
       % "is the shop open" query
-      {{_,Number,_,_,_,_}, status, _} ->
+      {{_,Number,_,_,_,_}, Action, _} when
+            Action == s;
+            Action == status ->
          Open = maps:size(Present) > 0,
          if
             Open ->
