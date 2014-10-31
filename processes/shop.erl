@@ -2,7 +2,13 @@
 % and dispatches requisite processes
 
 -module(shop).
--export([loop/1]).
+-export([loop/1, get_today_name/0]).
+
+get_today_name() ->
+   Days = [{1,"monday"},{2,"tuesday"},{3,"wednesday"},{4,"thursday"},{5,"friday"},{6,"saturday"},{7,"sunday"}],
+   {Date,_} = erlang:localtime(),
+   {_, Today} = lists:keyfind(calendar:day_of_the_week(Date), 1, Days),
+   Today.
 
 loop(Present) ->
    receive
@@ -103,6 +109,19 @@ loop(Present) ->
                U ! denied,
                loop(Present)
          end;
+
+      % schedule query
+      {{_,Number,_,_,_,_}, schedule, ["today"]} ->
+         Vs = db:get_schedule_day(get_today_name()),
+         case Vs of
+            [] -> Msg = "Noone is";
+            V -> Msg = V
+         end,
+         sms!{send,Number,lists:concat([
+               Msg,
+               " scheduled for today"
+            ])},
+         loop(Present);
 
       % "is the shop open" query
       {{_,Number,_,_,_,_}, Action, _} when

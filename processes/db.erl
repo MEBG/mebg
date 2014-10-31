@@ -157,3 +157,14 @@ get_days_string(Number) ->
             greetings:concatenate(get_days(Number))
          ])
    end.
+
+get_schedule_day(Day) ->
+   open(),
+   Query = lists:concat([
+      "SELECT p.name FROM person p
+      inner join schedule_recurring sr on p.id = sr.volunteer
+      WHERE day = '", Day, "';"
+   ]),
+   [{_,_},{rows,Rows}] = sqlite3:sql_exec(main,Query),   
+   close(),
+   greetings:concatenate([binary_to_list(R) || {R} <- Rows]).
