@@ -27,12 +27,14 @@ send(Number, Message) ->
       "&To=",Number,
       "&Body=", Message],
    io:format("sending to ~p: ~p~n", [Number,Message]),
-   % fail hard on any error
-   {ok,{{"HTTP/1.1",201,"CREATED"},_,_}} = httpc:request(post, 
+   timer:sleep(1000), % throttle outgoing messages
+   Response = httpc:request(post, 
        {lists:flatten(Url), [], 
        "application/x-www-form-urlencoded",
        lists:flatten(Parameters)
-       }, [], []).
+       }, [], []),
+   % fail hard on any error
+   {ok,{{"HTTP/1.1",201,"CREATED"},_,_}} = Response.
 
 test_send(Number, Message) ->
    io:format("SMS to be sent to ~p: ~p~n", [Number,Message]),
