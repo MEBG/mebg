@@ -19,6 +19,19 @@ tables() ->
       {balance, float}
    ]),
 
+   sqlite3:create_table(main, schedule_recurring, [
+      {id, integer, [primary_key]},
+      {volunteer, integer},
+      {day, text}
+   ]),
+
+   sqlite3:create_table(main, schedule_event, [
+      {id, integer, [primary_key]},
+      {volunteer, integer},
+      {present, boolean},
+      {date, integer}
+   ]),
+
    sqlite3:create_table(main, transactions, [
       {id, integer, [primary_key]},
       {date, integer},
