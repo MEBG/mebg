@@ -3,6 +3,9 @@
 -include_lib("eunit/include/eunit.hrl").
 
 
+reg() ->
+   register(test_relay, spawn(test,relay,[void])).
+
 relay(TrapId) ->
    receive
       {pid,Pid} ->
@@ -65,3 +68,20 @@ t410_double_depart_test() ->
    {"222",_} = send("222","depart"),
    {"111",M2} = send("111","status"),
    [M2] = [M||M<-greetings:closed_phrases(), M == M2].
+
+
+t500_schedule_add_day_test() ->
+   {"111", "You're signed up for monday"} = send("111", "add monday"),
+   {"111", "You're signed up for monday and tuesday"} = send("111", "add tuesday"),
+   {"111", "You're signed up for monday, tuesday and friday"} = send("111", "add friday").
+
+t510_schedule_remove_day_test() ->
+   {"111", "You're signed up for monday and friday"} = send("111", "remove tuesday"),
+   {"111", "You're signed up for monday"} = send("111", "remove friday"),
+   {"111", "You're not signed up for any days"} = send("111", "remove monday").
+
+t520_schedule_add_days_test() ->
+   {"111", "You're signed up for monday and tuesday"} = send("111", "add monday tuesday").
+
+t530_schedule_remove_days_test() ->
+   {"111", "You're not signed up for any days"} = send("111", "remove monday tuesday").

@@ -149,7 +149,11 @@ get_days(Number) ->
    % [binary_to_atom(R, latin1) || {R} <- Rows].
 
 get_days_string(Number) ->
-   lists:concat([
-      "You're signed up for ",
-      greetings:concatenate(get_days(Number))
-   ]).
+   case get_days(Number) of
+      [] -> "You're not signed up for any days";
+      _ ->
+         lists:concat([
+            "You're signed up for ",
+            greetings:concatenate(get_days(Number))
+         ])
+   end.
