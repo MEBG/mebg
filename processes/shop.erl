@@ -123,6 +123,18 @@ loop(Present) ->
             ])},
          loop(Present);
 
+      % week schedule query
+      {{_,Number,_,_,_,_}, schedule, []} ->
+         Days = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"],
+         Names = [db:get_schedule_day(D) || D <- Days],
+         Schedule = lists:zip(Names, Days),
+         Message = [
+            lists:concat([D," - ", N, [10]]) ||
+            {N,D} <- Schedule, N =/= []
+         ],
+         sms!{send,Number,Message},
+         loop(Present);
+
       % "is the shop open" query
       {{_,Number,_,_,_,_}, Action, _} when
             Action == s;
