@@ -20,11 +20,18 @@ get_rows(Table, Filter) ->
    close(),
    Rows.
 
-
 %
 % person
 %
 %
+
+% assumes sqlite3 connection is open
+get_person_id(Number) ->
+   [{_,_},{_,[{PersonId}]}] = sqlite3:sql_exec(main,
+      lists:concat(["SELECT id FROM person WHERE phone = \"",
+         Number, "\";"])
+   ),
+   PersonId.
 
 % store new member information in db
 save_member(Number, Expiry, Name) ->
@@ -99,14 +106,50 @@ get_transaction_balance() ->
 % store "arrive" and "depart" instances
 set_presence(Number, Present) ->
    open(),
-   % awkward two-step
-   [{_,_},{_,[{PersonId}]}] = sqlite3:sql_exec(main,
-      lists:concat(["SELECT id FROM person WHERE phone = \"",
-         Number, "\";"])
-   ),
    sqlite3:write(main, presence, [
       {present, Present},
       {timestamp, epoch()},
-      {person_id, PersonId}
+      {person_id, get_person_id(Number)}
       ]),
    close().
+
+
+%
+% schedule
+%
+
+remove_day(Number, Day) ->
+   open(),
+   Query = lists:concat([
+         "DELETE FROM schedule_recurring WHERE volunteer = ",
+         get_person_id(Number), " AND day = '", Day, "';"
+   ]),
+   sqlite3:sql_exec(main,Query),
+   close().
+
+add_day(Number, Day) ->
+   remove_day(Number, Day), % avoid duplicates
+   open(),
+   Query = lists:concat([
+         "INSERT INTO schedule_recurring (volunteer, day) ",
+         "VALUES (", get_person_id(Number), ", '", Day, "');"
+   ]),
+   {rowid, _} = sqlite3:sql_exec(main,Query),
+   close().
+
+get_days(Number) ->
+   open(),
+   Query = lists:concat([
+      "SELECT Day FROM schedule_recurring WHERE volunteer = ",
+      get_person_id(Number), ";"
+   ]),
+   [{_,_},{rows,Rows}] = sqlite3:sql_exec(main,Query),
+   close(),
+   [binary_to_list(R) || {R} <- Rows].
+   % [binary_to_atom(R, latin1) || {R} <- Rows].
+
+get_days_string(Number) ->
+   lists:concat([
+      "You're signed up for ",
+      greetings:concatenate(get_days(Number))
+   ]).

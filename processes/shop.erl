@@ -6,6 +6,16 @@
 
 loop(Present) ->
    receive
+      {{_,Number,volunteer,_,_,_}, add, Days} ->
+         [db:add_day(Number,D) || D <- Days],
+         sms!{send, Number, db:get_days_string(Number)},
+         loop(Present);
+         
+      {{_,Number,volunteer,_,_,_}, remove, Days} ->
+         [db:remove_day(Number,D) || D <- Days],
+         sms!{send, Number, db:get_days_string(Number)},
+         loop(Present);
+
       % volunteer arrival
       {{_,Number,volunteer,Name,_,_}, Action, _} when
             Action == i;
@@ -64,6 +74,7 @@ loop(Present) ->
             true -> void
          end,
          loop(Present);
+
 
       % membership inquiry
       {{_,Number,member,_,_,_}, verify, _} ->
