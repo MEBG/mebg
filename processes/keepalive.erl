@@ -24,9 +24,9 @@ launch(Name, Module, Fun, Args) ->
 
 % launch system
 init(Mode) ->
+   ssl:start(),
    inets:start(),
    launch(sms,sender,loop,fun() -> [Mode] end),
    launch(box,cashbox,loop,fun() -> initial_cashbox() end),
    launch(coop,shop,loop,fun() -> initial_coop() end),
-   launch(rcvr,receiver,loop, fun() -> [] end),
-   ssl:start().
+   launch(rcvr,receiver,loop, fun() -> [] end).

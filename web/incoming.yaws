@@ -2,9 +2,16 @@
 <Response>
     <erl>
       out(Arg) ->
-         {ok, From} = queryvar(Arg, "From"),
-         {ok, Body} = queryvar(Arg, "Body"),
-         rcvr ! {From, Body},
-         {content, "text/xml", []}.
+         try
+            io:format("~p",[Arg]),
+            {ok, From} = queryvar(Arg, "From"),
+            {ok, Body} = queryvar(Arg, "Body"),
+            rcvr ! {From, Body},
+            {content, "text/xml", []}
+         catch
+            error:{badmatch,undefined} ->
+               [{status, 400},
+               {html, "Query variables From and Body expected."}]
+         end.
     </erl>
 </Response>
