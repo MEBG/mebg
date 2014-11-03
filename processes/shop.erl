@@ -133,7 +133,9 @@ loop(Present) ->
 
       % schedule query
       {{_,Number,_,_,_,_}, schedule, ["today"]} ->
-         Vs = db:get_schedule_today(),
+         {Date,_} = erlang:localtime(),
+         Day = calendar:day_of_the_week(Date),
+         Vs = db:get_schedule_day(Day),
          case Vs of
             [] -> Msg = "Noone is";
             V -> Msg = V
