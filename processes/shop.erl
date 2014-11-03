@@ -4,8 +4,45 @@
 -module(shop).
 -export([loop/1]).
 
+days_list(name) ->
+   [{"monday",1},{"tuesday",2},{"wednesday",3},{"thursday",4},{"friday",5},{"saturday",6},{"sunday",7}];
+days_list(number) ->
+   [{1,"monday"},{2,"tuesday"},{3,"wednesday"},{4,"thursday"},{5,"friday"},{6,"saturday"},{7,"sunday"}].
+
+day_name_to_number(Day) ->
+   case lists:keyfind(Day, 1, days_list(name)) of
+      false -> 
+         false;
+      Idx ->
+         {_,Index} = Idx,
+         Index
+   end.
+
+signed_up_days(Number) ->
+   case db:get_days(Number) of
+      [] -> "You're not signed up for any shifts.";
+      Days ->
+         lists:concat([
+            "You're signed up for ",
+            greetings:concatenate(Days),
+            "."
+         ])
+   end.
+
 loop(Present) ->
    receive
+      {{_,Number,volunteer,_,_,_}, add, Days} ->
+         DayIndices = [day_name_to_number(D) || D <- Days],
+         [db:add_day(Number,D) || D <- DayIndices, D =/= false],
+         sms!{send, Number, signed_up_days(Number)},
+         loop(Present);
+         
+      {{_,Number,volunteer,_,_,_}, remove, Days} ->
+         DayIndices = [day_name_to_number(D) || D <- Days],
+         [db:remove_day(Number,D) || D <- DayIndices, D =/= false],
+         sms!{send, Number, signed_up_days(Number)},
+         loop(Present);
+
       % volunteer arrival
       {{_,Number,volunteer,Name,_,_}, Action, _} when
             Action == i;
@@ -65,6 +102,7 @@ loop(Present) ->
          end,
          loop(Present);
 
+
       % membership inquiry
       {{_,Number,member,_,_,_}, verify, _} ->
          M = spawn(member, loop, [Number]),
@@ -92,6 +130,31 @@ loop(Present) ->
                U ! denied,
                loop(Present)
          end;
+
+      % schedule query
+      {{_,Number,_,_,_,_}, schedule, ["today"]} ->
+         Vs = db:get_schedule_today(),
+         case Vs of
+            [] -> Msg = "Noone is";
+            V -> Msg = V
+         end,
+         sms!{send,Number,lists:concat([
+               Msg,
+               " scheduled for today."
+            ])},
+         loop(Present);
+
+      % week schedule query
+      {{_,Number,_,_,_,_}, schedule, []} ->
+         Days = [[H-32|T] || {[H|T],_} <- days_list(name)],
+         Names = [db:get_schedule_day(D) || D <- lists:seq(1,7)],
+         Schedule = lists:zip(Names, Days),
+         Message = [
+            lists:concat([D," - ", N, [10]]) ||
+            {N,D} <- Schedule, N =/= []
+         ],
+         sms!{send,Number,Message},
+         loop(Present);
 
       % "is the shop open" query
       {{_,Number,_,_,_,_}, Action, _} when

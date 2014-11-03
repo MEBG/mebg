@@ -1,5 +1,6 @@
 -module(greetings).
 -export([
+   concatenate/1,
    hello_phrases/0, hello/0,
    bye_phrases/0, bye/0,
    open_phrases/1, open/1,
@@ -43,20 +44,20 @@ isare([_H]) ->
    " is ";
 isare([_H|_T]) ->
    " are ".
-concatenate_names([]) -> "";
-concatenate_names([T]) -> T;
-concatenate_names([H|T]) ->
-   concatenate_names(H, T).
-concatenate_names(String, [T]) ->
+concatenate([]) -> "";
+concatenate([T]) -> T;
+concatenate([H|T]) ->
+   concatenate(H, T).
+concatenate(String, [T]) ->
    lists:concat([String, " and ", T]);
-concatenate_names(String, [H|T]) ->
-   concatenate_names(lists:concat([String, ", ", H]), T).
+concatenate(String, [H|T]) ->
+   concatenate(lists:concat([String, ", ", H]), T).
 open_phrases(Names) -> [
-   ["The bike shop is open, with ", concatenate_names(Names), " on duty"],
-   ["Yes, we're open! ", concatenate_names(Names), isare(Names), "here."],
-   ["Open for business - ", concatenate_names(Names), isare(Names), "helping out."],
-   [concatenate_names(Names), isare(Names), "running the show. Come on by!"],
-   [concatenate_names(Names), isare(Names), "at the shop. Come on by!"]
+   ["The bike shop is open, with ", concatenate(Names), " on duty"],
+   ["Yes, we're open! ", concatenate(Names), isare(Names), "here."],
+   ["Open for business - ", concatenate(Names), isare(Names), "helping out."],
+   [concatenate(Names), isare(Names), "running the show. Come on by!"],
+   [concatenate(Names), isare(Names), "at the shop. Come on by!"]
 ].
 open(Names) ->
    lists:flatten(get_random(open_phrases(Names))).
