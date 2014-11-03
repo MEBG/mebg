@@ -2,17 +2,12 @@
 % and dispatches requisite processes
 
 -module(shop).
--export([loop/1, get_today_name/0]).
+-export([loop/1]).
 
 days_list(name) ->
    [{"monday",1},{"tuesday",2},{"wednesday",3},{"thursday",4},{"friday",5},{"saturday",6},{"sunday",7}];
 days_list(number) ->
    [{1,"monday"},{2,"tuesday"},{3,"wednesday"},{4,"thursday"},{5,"friday"},{6,"saturday"},{7,"sunday"}].
-
-get_today_name() ->
-   {Date,_} = erlang:localtime(),
-   {_, [H|T]} = lists:keyfind(calendar:day_of_the_week(Date), 1, days_list(number)),
-   [H-32|T]. % capitalize day name
 
 day_name_to_number(Day) ->
    case lists:keyfind(Day, 1, days_list(name)) of
@@ -29,7 +24,8 @@ signed_up_days(Number) ->
       Days ->
          lists:concat([
             "You're signed up for ",
-            greetings:concatenate(Days)
+            greetings:concatenate(Days),
+            "."
          ])
    end.
 
@@ -137,14 +133,14 @@ loop(Present) ->
 
       % schedule query
       {{_,Number,_,_,_,_}, schedule, ["today"]} ->
-         Vs = db:get_schedule_day(get_today_name()),
+         Vs = db:get_schedule_today(),
          case Vs of
             [] -> Msg = "Noone is";
             V -> Msg = V
          end,
          sms!{send,Number,lists:concat([
                Msg,
-               " scheduled for today"
+               " scheduled for today."
             ])},
          loop(Present);
 

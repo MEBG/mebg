@@ -3,7 +3,8 @@
 -include_lib("eunit/include/eunit.hrl").
 
 
-reg() ->
+init() ->
+   keepalive:init(test),
    register(test_relay, spawn(test,relay,[void])).
 
 relay(TrapId) ->
@@ -71,25 +72,30 @@ t410_double_depart_test() ->
 
 
 t500_schedule_add_day_test() ->
-   {"111", "You're signed up for monday"} = send("111", "add monday"),
-   {"111", "You're signed up for monday and tuesday"} = send("111", "add tuesday"),
-   {"111", "You're signed up for monday, tuesday and friday"} = send("111", "add friday").
+   {"111", "You're signed up for Mondays."} = send("111", "add monday"),
+   {"111", "You're signed up for Mondays and Tuesdays."} = send("111", "add tuesday"),
+   {"111", "You're signed up for Mondays, Tuesdays and Fridays."} = send("111", "add friday").
 
-t505_schedule_inquiry_test() ->
-   {"111", "Noone is scheduled for today"} = send("111", "schedule today"),
-   Dn = shop:get_today_name(),
-   {"111", _} = send("111", lists:concat(["add ", Dn])),
-   {"111","TV01 scheduled for today"} = send("111", "schedule today"),
-   {"111", "You're not signed up for any days"} = send("111", lists:concat(["remove ", Dn])).
+t502_schedule_add_bad_day_test() ->
+   {"111", "You're signed up for Mondays, Tuesdays and Fridays."} = send("111", "add bogus things").
 
-t510_schedule_remove_day_test() ->
-   {"111", "You're signed up for monday and friday"} = send("111", "remove tuesday"),
-   {"111", "You're signed up for monday"} = send("111", "remove friday"),
-   {"111", "You're not signed up for any days"} = send("111", "remove monday").
+t504_schedule_add_none_day_test() ->
+   {"111", "You're signed up for Mondays, Tuesdays and Fridays."} = send("111", "add").
+
+t510_schedule_remove_bad_day_test() ->
+   {"111", "You're signed up for Mondays, Tuesdays and Fridays."} = send("111", "remove nothing at all").
+
+t512_schedule_remove_none_day_test() ->
+   {"111", "You're signed up for Mondays, Tuesdays and Fridays."} = send("111", "remove").
+
+t515_schedule_remove_day_test() ->
+   {"111", "You're signed up for Mondays and Fridays."} = send("111", "remove tuesday"),
+   {"111", "You're signed up for Mondays."} = send("111", "remove friday"),
+   {"111", "You're not signed up for any shifts."} = send("111", "remove monday").
+
 
 t520_schedule_add_days_test() ->
-   {"111", "You're signed up for monday and tuesday"} = send("111", "add monday tuesday").
+   {"111", "You're signed up for Mondays and Tuesdays."} = send("111", "add monday tuesday").
 
 t530_schedule_remove_days_test() ->
-   {"111", "You're not signed up for any days"} = send("111", "remove monday tuesday").
-
+   {"111", "You're not signed up for any shifts."} = send("111", "remove monday tuesday").
