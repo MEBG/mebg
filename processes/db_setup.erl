@@ -22,7 +22,7 @@ tables() ->
    sqlite3:create_table(main, schedule_recurring, [
       {id, integer, [primary_key]},
       {volunteer, integer},
-      {day, text}
+      {day, integer}
    ]),
 
    sqlite3:create_table(main, schedule_event, [

@@ -132,7 +132,7 @@ add_day(Number, Day) ->
    open(),
    Query = lists:concat([
          "INSERT INTO schedule_recurring (volunteer, day) ",
-         "VALUES (", get_person_id(Number), ", '", Day, "');"
+         "VALUES (", get_person_id(Number), ", ", Day, ");"
    ]),
    {rowid, _} = sqlite3:sql_exec(main,Query),
    close().
@@ -141,29 +141,19 @@ get_days(Number) ->
    open(),
    Query = lists:concat([
       "SELECT Day FROM schedule_recurring WHERE volunteer = ",
-      get_person_id(Number), ";"
+      get_person_id(Number), " ORDER BY Day;"
    ]),
    [{_,_},{rows,Rows}] = sqlite3:sql_exec(main,Query),
    close(),
-   [binary_to_list(R) || {R} <- Rows].
-   % [binary_to_atom(R, latin1) || {R} <- Rows].
-
-get_days_string(Number) ->
-   case get_days(Number) of
-      [] -> "You're not signed up for any days";
-      _ ->
-         lists:concat([
-            "You're signed up for ",
-            greetings:concatenate(get_days(Number))
-         ])
-   end.
+   Days = [{1,"Mondays"},{2,"Tuesdays"},{3,"Wednesdays"},{4,"Thursdays"},{5,"Fridays"},{6,"Saturdays"},{7,"Sundays"}],
+   [ N || {_,N} <- [lists:keyfind(X,1,Days) || {X} <- Rows ] ].
 
 get_schedule_day(Day) ->
    open(),
    Query = lists:concat([
       "SELECT p.name FROM person p
       inner join schedule_recurring sr on p.id = sr.volunteer
-      WHERE day = '", Day, "';"
+      WHERE day = ", Day, ";"
    ]),
    [{_,_},{rows,Rows}] = sqlite3:sql_exec(main,Query),   
    close(),

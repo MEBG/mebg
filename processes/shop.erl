@@ -4,22 +4,47 @@
 -module(shop).
 -export([loop/1, get_today_name/0]).
 
+days_list(name) ->
+   [{"monday",1},{"tuesday",2},{"wednesday",3},{"thursday",4},{"friday",5},{"saturday",6},{"sunday",7}];
+days_list(number) ->
+   [{1,"monday"},{2,"tuesday"},{3,"wednesday"},{4,"thursday"},{5,"friday"},{6,"saturday"},{7,"sunday"}].
+
 get_today_name() ->
-   Days = [{1,"monday"},{2,"tuesday"},{3,"wednesday"},{4,"thursday"},{5,"friday"},{6,"saturday"},{7,"sunday"}],
    {Date,_} = erlang:localtime(),
-   {_, Today} = lists:keyfind(calendar:day_of_the_week(Date), 1, Days),
-   Today.
+   {_, [H|T]} = lists:keyfind(calendar:day_of_the_week(Date), 1, days_list(number)),
+   [H-32|T]. % capitalize day name
+
+day_name_to_number(Day) ->
+   case lists:keyfind(Day, 1, days_list(name)) of
+      false -> 
+         false;
+      Idx ->
+         {_,Index} = Idx,
+         Index
+   end.
+
+signed_up_days(Number) ->
+   case db:get_days(Number) of
+      [] -> "You're not signed up for any shifts.";
+      Days ->
+         lists:concat([
+            "You're signed up for ",
+            greetings:concatenate(Days)
+         ])
+   end.
 
 loop(Present) ->
    receive
       {{_,Number,volunteer,_,_,_}, add, Days} ->
-         [db:add_day(Number,D) || D <- Days],
-         sms!{send, Number, db:get_days_string(Number)},
+         DayIndices = [day_name_to_number(D) || D <- Days],
+         [db:add_day(Number,D) || D <- DayIndices, D =/= false],
+         sms!{send, Number, signed_up_days(Number)},
          loop(Present);
          
       {{_,Number,volunteer,_,_,_}, remove, Days} ->
-         [db:remove_day(Number,D) || D <- Days],
-         sms!{send, Number, db:get_days_string(Number)},
+         DayIndices = [day_name_to_number(D) || D <- Days],
+         [db:remove_day(Number,D) || D <- DayIndices, D =/= false],
+         sms!{send, Number, signed_up_days(Number)},
          loop(Present);
 
       % volunteer arrival
@@ -125,8 +150,8 @@ loop(Present) ->
 
       % week schedule query
       {{_,Number,_,_,_,_}, schedule, []} ->
-         Days = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"],
-         Names = [db:get_schedule_day(D) || D <- Days],
+         Days = [[H-32|T] || {[H|T],_} <- days_list(name)],
+         Names = [db:get_schedule_day(D) || D <- lists:seq(1,7)],
          Schedule = lists:zip(Names, Days),
          Message = [
             lists:concat([D," - ", N, [10]]) ||
