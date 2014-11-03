@@ -137,7 +137,7 @@ loop(Present) ->
          Day = calendar:day_of_the_week(Date),
          Vs = db:get_schedule_day(Day),
          case Vs of
-            [] -> Msg = "Noone is";
+            [] -> Msg = "No one is";
             V -> Msg = V
          end,
          sms!{send,Number,lists:concat([
@@ -155,7 +155,12 @@ loop(Present) ->
             lists:concat([D," - ", N, [10]]) ||
             {N,D} <- Schedule, N =/= []
          ],
-         sms!{send,Number,Message},
+         if
+            Message == [] ->
+               sms!{send,Number,"The schedule is empty, no one has signed up."};
+            true ->
+               sms!{send,Number,Message}
+         end,
          loop(Present);
 
       % "is the shop open" query

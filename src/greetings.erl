@@ -66,7 +66,7 @@ closed_phrases() -> [
    "The bike shop is closed right now",
    "Sorry, we are not open right now",
    "Usually open from 6pm to 9pm on weekdays.. But, not right now, sorry!",
-   "There is noone here - the bike shop is closed",
+   "There is no one here - the bike shop is closed",
    "Sorry, we're not here right now.."
 ].
 closed() ->

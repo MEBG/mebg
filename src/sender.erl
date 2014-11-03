@@ -37,6 +37,11 @@ send(Number, Message) ->
    {ok,{{"HTTP/1.1",201,"CREATED"},_,_}} = Response.
 
 test_send(Number, Message) ->
-   io:format("SMS to be sent to ~p: ~p~n", [Number,Message]),
-   test_relay!{send,Number,Message}.
+  io:format("SMS to be sent to ~p: ~p~n", [Number,Message]),
+  case lists:member(test_relay, registered()) of
+    true ->
+      test_relay!{send,Number,Message};
+    false ->
+      void
+  end.
 
