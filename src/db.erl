@@ -9,7 +9,7 @@ now_to_seconds({Mega, Sec, _}) ->
     (Mega * 1000000) + Sec.
 
 open() ->
-   sqlite3:open(main).
+   sqlite3:open(main, [{file, "../main.db"}]).
 
 close() ->
    sqlite3:close(main).
