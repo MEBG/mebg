@@ -3,7 +3,6 @@
     <erl>
       out(Arg) ->
          try
-            io:format("~p",[Arg]),
             {ok, From} = queryvar(Arg, "From"),
             {ok, Body} = queryvar(Arg, "Body"),
             rcvr ! {From, Body},
