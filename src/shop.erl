@@ -50,9 +50,8 @@ loop(Present) ->
             Action == here;
             Action == arrive;
             Action == open ->
-         Exists = maps:is_key(Number, Present),
-         if
-            not Exists ->
+         case maps:is_key(Number, Present) of
+            false ->
                V = spawn(volunteer,loop,[Number]),
                sms ! {send, Number, greetings:hello()},
                db:set_presence(Number,true),
@@ -68,37 +67,36 @@ loop(Present) ->
             Action == leave;
             Action == depart;
             Action == close ->
-         Exists = maps:is_key(Number, Present),
-         if
-            Exists ->
+         case maps:is_key(Number, Present) of
+            true ->
                {V,_} = maps:get(Number, Present),
                V ! goodbye,
                db:set_presence(Number,false),
                loop(maps:without([Number], Present));
-            true ->
+            false ->
                loop(Present)
          end;
 
       % approval of member signup request by volunteer
       {{_,Number,volunteer,_,_,_}, approve, _} ->
-         Exists = maps:is_key(Number, Present),
-         if
-            Exists ->
+         case maps:is_key(Number, Present) of
+            true ->
                {V,_} = maps:get(Number, Present),
                V ! approved;
-            true -> void
+            false ->
+               void
          end,
          loop(Present);
 
       % denial of member signup request by volunteer
       {{_,Number,volunteer,_,_,_}, deny, _} ->
-         Exists = maps:is_key(Number, Present),
-         if
-            Exists ->
+         case maps:is_key(Number, Present) of
+            true ->
                {V,_} = maps:get(Number, Present),
                V ! denied,
                loop(Present);
-            true -> void
+            false ->
+               void
          end,
          loop(Present);
 
