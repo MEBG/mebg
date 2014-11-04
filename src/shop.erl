@@ -131,9 +131,7 @@ loop(Present) ->
 
       % schedule query
       {{_,Number,_,_,_,_}, schedule, ["today"]} ->
-         {Date,_} = erlang:localtime(),
-         Day = calendar:day_of_the_week(Date),
-         Vs = db:get_schedule_day(Day),
+         Vs = db:get_volunteers_today(),
          case Vs of
             [] -> Msg = "No one is";
             V -> Msg = V
@@ -165,13 +163,20 @@ loop(Present) ->
       {{_,Number,_,_,_,_}, Action, _} when
             Action == s;
             Action == status ->
-         Open = maps:size(Present) > 0,
-         if
-            Open ->
+         {_,{Hour,_,_}} = erlang:localtime(),
+         Within = Hour > 17 andalso Hour < 21,
+         Scheduled = db:get_volunteers_today(),
+         case {Scheduled, maps:size(Present) > 0, Within} of
+            {[],_,_} ->
+               Message = greetings:shut();
+            {_,false,true} ->
+               Message = greetings:late();
+               % todo: https://github.com/MEBG/mebg/issues/19
+            {_,false,false} ->
+               Message = greetings:closed(Scheduled);
+            {_,true,_} ->
                Names = [Name||{_,Name}<-maps:values(Present)],
-               Message = greetings:open(Names);
-            not Open ->
-               Message = greetings:closed()
+               Message = greetings:open(Names)
          end,
          sms ! {send, Number, Message},
          loop(Present);

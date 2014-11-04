@@ -148,7 +148,6 @@ get_days(Number) ->
    Days = [{1,"Mondays"},{2,"Tuesdays"},{3,"Wednesdays"},{4,"Thursdays"},{5,"Fridays"},{6,"Saturdays"},{7,"Sundays"}],
    [ N || {_,N} <- [lists:keyfind(X,1,Days) || {X} <- Rows ] ].
 
-
 get_schedule_day(Day) ->
    open(),
    Query = lists:concat([
@@ -160,3 +159,7 @@ get_schedule_day(Day) ->
    close(),
    greetings:concatenate([binary_to_list(R) || {R} <- Rows]).
 
+get_volunteers_today() ->
+   {Date,_} = erlang:localtime(),
+   Day = calendar:day_of_the_week(Date),
+   db:get_schedule_day(Day).
