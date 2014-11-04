@@ -167,7 +167,7 @@ loop(Present) ->
          Within = Hour > 17 andalso Hour < 21,
          Scheduled = db:get_volunteers_today(),
          case {Scheduled, maps:size(Present) > 0, Within} of
-            {[],_,_} ->
+            {[],false,_} ->
                Message = greetings:shut();
             {_,false,true} ->
                Message = greetings:late();
