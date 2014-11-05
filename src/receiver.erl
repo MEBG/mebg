@@ -12,7 +12,8 @@ loop() ->
          Action = list_to_atom(A),
          % fetch person data if known
          Person = db:get_person(Number),
-         io:format("~p received from ~p~n", [Tokens, Person]),
+         io:format("[~p] ~p received from ~p~n",
+            [erlang:localtime(), Tokens, Person]),
          % forward parsed message to shop process
          coop ! {Person, Action, Arguments},
          loop();
