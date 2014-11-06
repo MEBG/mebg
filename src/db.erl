@@ -20,9 +20,9 @@ get_rows(Table, Filter) ->
    close(),
    Rows.
 
+
 %
 % person
-%
 %
 
 % assumes sqlite3 connection is open
@@ -163,3 +163,28 @@ get_volunteers_today() ->
    {Date,_} = erlang:localtime(),
    Day = calendar:day_of_the_week(Date),
    db:get_schedule_day(Day).
+
+
+%
+% presence
+%
+
+get_present_volunteers() ->
+   open(),
+   Query = "SELECT phone, name FROM (SELECT present, phone, name, timestamp FROM presence pr INNER JOIN person p ON p.id = pr.person_id GROUP BY p.id ORDER BY timestamp) WHERE present == 1;",
+   Result = sqlite3:sql_exec(main,Query),   
+   close(),
+   case Result of
+      [{_,_},{rows,Rows}] ->
+         Vs = [
+            {
+               binary_to_list(Number),
+               {
+                  spawn(volunteer,loop,[binary_to_list(Number)]),
+                  binary_to_list(Name)
+               }
+            } || {Number, Name} <- Rows],
+         maps:from_list(Vs);
+      [] ->
+         #{}
+   end.

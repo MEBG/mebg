@@ -155,7 +155,7 @@ loop(Present) ->
             Message == [] ->
                sms!{send,Number,"The schedule is empty, no one has signed up."};
             true ->
-               sms!{send,Number,Message}
+               sms!{send,Number,lists:flatten(["18h-21h", 10, Message])}
          end,
          loop(Present);
 
@@ -192,8 +192,7 @@ loop(Present) ->
 
       % for in-shell debugging
       present ->
-         Names = [Name || {_,Name} <- maps:values(Present)],
-         io:format("present volunteers: ~p~n", [Names]),
+         io:format("present volunteers: ~p~n", [Present]),
          loop(Present);
       isOpen ->
          io:format("shop open: ~p~n", [maps:size(Present) > 0]),
