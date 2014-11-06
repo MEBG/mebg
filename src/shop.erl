@@ -162,6 +162,7 @@ loop(Present) ->
       % "is the shop open" query
       {{_,Number,_,_,_,_}, Action, _} when
             Action == s;
+            Action == st;
             Action == status ->
          {_,{Hour,_,_}} = erlang:localtime(),
          Within = Hour > 17 andalso Hour < 21,
