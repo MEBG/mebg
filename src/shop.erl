@@ -155,7 +155,7 @@ loop(Present) ->
             Message == [] ->
                sms!{send,Number,"The schedule is empty, no one has signed up."};
             true ->
-               sms!{send,Number,Message}
+               sms!{send,Number,lists:flatten(["18h-21h", 10, Message])}
          end,
          loop(Present);
 
