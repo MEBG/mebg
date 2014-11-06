@@ -192,8 +192,7 @@ loop(Present) ->
 
       % for in-shell debugging
       present ->
-         Names = [Name || {_,Name} <- maps:values(Present)],
-         io:format("present volunteers: ~p~n", [Names]),
+         io:format("present volunteers: ~p~n", [Present]),
          loop(Present);
       isOpen ->
          io:format("shop open: ~p~n", [maps:size(Present) > 0]),

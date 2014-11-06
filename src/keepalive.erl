@@ -2,11 +2,6 @@
 -module(keepalive).
 -export([launch/4, init/1]).
 
-% initial value of cashbox spawn arguments
-initial_cashbox() -> [db:get_transaction_balance()].
-
-% initial value of coop spawn arguments
-initial_coop() -> [#{}].
 
 launch(Name, Module, Fun, Args) ->
    Pid = spawn(Module,Fun,Args()),
@@ -26,6 +21,6 @@ init(Mode) ->
    ssl:start(),
    inets:start(),
    launch(sms,sender,loop,fun() -> [Mode] end),
-   launch(box,cashbox,loop,fun() -> initial_cashbox() end),
-   launch(coop,shop,loop,fun() -> initial_coop() end),
+   launch(box,cashbox,loop,fun() -> [db:get_transaction_balance()] end),
+   launch(coop,shop,loop,fun() -> [db:get_present_volunteers()] end),
    launch(rcvr,receiver,loop, fun() -> [] end).
