@@ -130,20 +130,9 @@ loop(Present) ->
          end;
 
       % schedule query
-      {{_,Number,_,_,_,_}, schedule, ["today"]} ->
-         Vs = db:get_volunteers_today(),
-         case Vs of
-            [] -> Msg = "No one is";
-            V -> Msg = V
-         end,
-         sms!{send,Number,lists:concat([
-               Msg,
-               " scheduled for today."
-            ])},
-         loop(Present);
-
-      % week schedule query
-      {{_,Number,_,_,_,_}, schedule, []} ->
+      {{_,Number,_,_,_,_}, Action, []} when
+            Action == h;
+            Action == hours ->
          Days = [[H-32|T] || {[H|T],_} <- days_list(name)],
          Names = [db:get_schedule_day(D) || D <- lists:seq(1,7)],
          Schedule = lists:zip(Names, Days),
