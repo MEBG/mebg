@@ -129,6 +129,20 @@ loop(Present) ->
                loop(Present)
          end;
 
+      % notify on-shift volunteers that the door downstairs is locked
+     {{_,Number,unknown,_,_,_}, Action, _} when
+            Action == locked;
+            Action == door ->
+         case maps:size(Present) > 0 of
+            true ->
+               [ sms!{send, N, "Someone is locked out downstairs!" }
+               || N <- maps:keys(Present) ],
+               sms!{send,Number,"Not again! Hang tight, someone will be down in a minute."};
+            false -> 
+               sms!{send,Number,"Sorry, no one is here right now.."}
+         end,
+         loop(Present);
+
       % schedule query
       {{_,Number,_,_,_,_}, Action, []} when
             Action == h;
