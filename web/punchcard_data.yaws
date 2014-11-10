@@ -15,7 +15,7 @@ punchcard() ->
 
    person_row(Pid, Rows) -> [{D,C}||{P,D,C}<-Rows, P == Pid].
 
-   full_row() -> [{X,0}||X<-lists:seq(1,7)].
+   full_row() -> [{X,0}||X<-lists:seq(0,6)].
 
    full_row([]) -> full_row();
 
@@ -24,12 +24,10 @@ punchcard() ->
    full_row([{Hk,Hv}|T]) -> full_row([{Hk,Hv}|T], full_row()).
 
    full_row([{Rk,Rv}],List) ->
-      Rkc = (Rk+7) rem 8, % sql Sun = 0 / erl Sun = 7
-      lists:keyreplace(Rkc, 1, List, {Rkc,Rv});
+      lists:keyreplace(Rk, 1, List, {Rk,Rv});
 
    full_row([{Hk,Hv}|T], List) ->
-      Hkc = (Hk+7) rem 8,
-      full_row(T,lists:keyreplace(Hkc, 1, List, {Hkc,Hv})).
+      full_row(T,lists:keyreplace(Hk, 1, List, {Hk,Hv})).
 
    join([H|T],S) ->
       lists:flatten(
@@ -37,5 +35,5 @@ punchcard() ->
       ).
 
    out(Arg) ->
-      {content, "text", [ "Type,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday", 10, punchcard() ]}.
+      {content, "text", [ "Type,Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday", 10, punchcard() ]}.
 </erl>
