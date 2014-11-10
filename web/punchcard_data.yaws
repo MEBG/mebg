@@ -1,7 +1,7 @@
 <erl>
 punchcard() ->
    sqlite3:open(main, [{file, "../main.db"}]),
-   Vq = "SELECT name, id FROM person ORDER BY id;",
+   Vq = "SELECT name, p.id FROM person p INNER JOIN presence pr on pr.person_id = p.id GROUP BY p.id ORDER BY p.id;",
    [_,{_,Vs}] = sqlite3:sql_exec(main,Vq),
    Dq = "select person_id, cast(strftime('%w', datetime(timestamp, 'unixepoch', 'localtime')) as integer) as day_of_week, count(*) as count from presence where present = 1 group by person_id, day_of_week order by person_id, day_of_week;",
    [_,{_,Counts}] = sqlite3:sql_exec(main,Dq),
