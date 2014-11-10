@@ -1,16 +1,17 @@
 <erl>
-   punchcard() ->
-      Vs = lists:seq(1,10),
-      Query = "select person_id, cast(strftime('%w', datetime(timestamp, 'unixepoch', 'localtime')) as integer) as day_of_week, count(*) as count from presence where present = 1 group by person_id, day_of_week order by person_id, day_of_week;",
-      sqlite3:open(main, [{file, "../main.db"}]),
-      [_,{_,Rows}] = sqlite3:sql_exec(main,Query),
-      sqlite3:close(main),
-      [lists:flatten([
-         integer_to_list(P),
-         ",",
-         join([C||{_,C} <-full_row(person_row(P,Rows))], ","),
-         10
-      ]) || P<-Vs].
+punchcard() ->
+   sqlite3:open(main, [{file, "../main.db"}]),
+   Vq = "SELECT name, id FROM person ORDER BY id;",
+   [_,{_,Vs}] = sqlite3:sql_exec(main,Vq),
+   Dq = "select person_id, cast(strftime('%w', datetime(timestamp, 'unixepoch', 'localtime')) as integer) as day_of_week, count(*) as count from presence where present = 1 group by person_id, day_of_week order by person_id, day_of_week;",
+   [_,{_,Counts}] = sqlite3:sql_exec(main,Dq),
+   sqlite3:close(main),
+   [lists:flatten([
+      binary_to_list(N),
+      ",",
+      join([C||{_,C} <-full_row(person_row(P,Counts))], ","),
+      10
+   ]) || {N,P}<-Vs].
 
    person_row(Pid, Rows) -> [{D,C}||{P,D,C}<-Rows, P == Pid].
 
