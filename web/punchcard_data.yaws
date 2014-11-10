@@ -16,11 +16,8 @@ punchcard() ->
    person_row(Pid, Rows) -> [{D,C}||{P,D,C}<-Rows, P == Pid].
 
    full_row() -> [{X,0}||X<-lists:seq(0,6)].
-
    full_row([]) -> full_row();
-
    full_row([{Rk,Rv}]) -> full_row([{Rk,Rv}], full_row());
-
    full_row([{Hk,Hv}|T]) -> full_row([{Hk,Hv}|T], full_row()).
 
    full_row([{Rk,Rv}],List) ->
@@ -35,5 +32,5 @@ punchcard() ->
       ).
 
    out(Arg) ->
-      {content, "text", [ "Type,Sun,Mon,Tues,Wed,Thu,Fri,Sat", 10, punchcard() ]}.
+      {content, "text", [ "_,Sun,Mon,Tue,Wed,Thu,Fri,Sat", 10, punchcard() ]}.
 </erl>
