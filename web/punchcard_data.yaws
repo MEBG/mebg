@@ -35,5 +35,5 @@ punchcard() ->
       ).
 
    out(Arg) ->
-      {content, "text", [ "Type,Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday", 10, punchcard() ]}.
+      {content, "text", [ "Type,Sun,Mon,Tues,Wed,Thu,Fri,Sat", 10, punchcard() ]}.
 </erl>
