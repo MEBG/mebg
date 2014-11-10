@@ -66,8 +66,8 @@ open(Names) ->
 
 shut_phrases() -> [
    "The bike shop will not be open today.",
-   "Sorry, today we are closed - txt SCHEDULE for business hours.",
-   "Closed today - txt SCHEDULE to see when we're open."
+   "Sorry, today we are closed - txt 'hours' for business hours.",
+   "Closed today - txt 'hours' to see when we're open."
 ].
 shut() ->
    get_random(shut_phrases()).

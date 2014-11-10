@@ -1,0 +1,36 @@
+<erl>
+punchcard() ->
+   sqlite3:open(main, [{file, "../main.db"}]),
+   Vq = "SELECT name, p.id FROM person p INNER JOIN presence pr on pr.person_id = p.id GROUP BY p.id ORDER BY p.id;",
+   [_,{_,Vs}] = sqlite3:sql_exec(main,Vq),
+   Dq = "select person_id, cast(strftime('%w', datetime(timestamp, 'unixepoch', 'localtime')) as integer) as day_of_week, count(*) as count from presence where present = 1 group by person_id, day_of_week order by person_id, day_of_week;",
+   [_,{_,Counts}] = sqlite3:sql_exec(main,Dq),
+   sqlite3:close(main),
+   [lists:flatten([
+      binary_to_list(N),
+      ",",
+      join([C||{_,C} <-full_row(person_row(P,Counts))], ","),
+      10
+   ]) || {N,P}<-Vs].
+
+   person_row(Pid, Rows) -> [{D,C}||{P,D,C}<-Rows, P == Pid].
+
+   full_row() -> [{X,0}||X<-lists:seq(0,6)].
+   full_row([]) -> full_row();
+   full_row([{Rk,Rv}]) -> full_row([{Rk,Rv}], full_row());
+   full_row([{Hk,Hv}|T]) -> full_row([{Hk,Hv}|T], full_row()).
+
+   full_row([{Rk,Rv}],List) ->
+      lists:keyreplace(Rk, 1, List, {Rk,Rv});
+
+   full_row([{Hk,Hv}|T], List) ->
+      full_row(T,lists:keyreplace(Hk, 1, List, {Hk,Hv})).
+
+   join([H|T],S) ->
+      lists:flatten(
+         [integer_to_list(H) | [[S,integer_to_list(X)] || X<-T ] ]
+      ).
+
+   out(Arg) ->
+      {content, "text", [ "_,Sun,Mon,Tue,Wed,Thu,Fri,Sat", 10, punchcard() ]}.
+</erl>
