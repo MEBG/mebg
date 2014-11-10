@@ -1,0 +1,11 @@
+<style type='text/css'>
+   body {
+       background-image: url(img/MEBG_logo_main.jpg);
+       background-size: fit;
+       background-repeat: no-repeat;
+       background-position: center center;
+   }
+   body::after {
+      opacity: 0.5;
+   }
+</style>
