@@ -146,6 +146,7 @@ loop(Present) ->
       % schedule query
       {{_,Number,_,_,_,_}, Action, []} when
             Action == h;
+            Action == schedule;
             Action == hours ->
          Days = [[H-32|T] || {[H|T],_} <- days_list(name)],
          Names = [db:get_schedule_day(D) || D <- lists:seq(1,7)],
