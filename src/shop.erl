@@ -129,8 +129,8 @@ loop(Present) ->
                loop(Present)
          end;
 
-      % notify on-shift volunteers that the door downstairs is locked
-     {{_,Number,unknown,_,_,_}, Action, _} when
+      % notify on-shift volunteers that the downstairs door is locked
+     {{_,Number,_,_,_,_}, Action, _} when
             Action == locked;
             Action == door ->
          case maps:size(Present) > 0 of
