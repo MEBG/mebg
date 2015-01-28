@@ -89,6 +89,8 @@ loop(Present) ->
       {{_,Number,_,_,_,_}, Action, []} when
             Action == h;
             Action == schedule;
+            Action == 'schedule?';
+            Action == 'hours?';
             Action == hours ->
          Days = [[H-32|T] || {[H|T],_} <- days_list()],
          Names = [db:get_schedule_day(D) || D <- lists:seq(1,7)],
@@ -110,7 +112,8 @@ loop(Present) ->
       {{_,Number,_,_,_,_}, Action, _} when
             Action == s;
             Action == st;
-            Action == status ->
+            Action == status;
+            Action == 'status?' ->
          {_,{Hour,_,_}} = erlang:localtime(),
          Within = Hour > 17 andalso Hour < 21,
          Scheduled = db:get_volunteers_today(),
