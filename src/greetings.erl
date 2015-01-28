@@ -12,6 +12,11 @@ get_random(List) ->
    [R|_] = [X||{_,X} <- lists:sort([ {random:uniform(), N} || N <- List])],
    R.
 
+% response when a volunteer checks in
+hello() ->
+   get_random(maps:get(hello, phrases)).
+
+
 hello_phrases() -> [
    "Welcome!",
    "Thought you'd never drop by!",
@@ -26,8 +31,6 @@ hello_phrases() -> [
    "Hi. I think we're out of chain breakers..",
    "Bienvenidos compadre!"
 ].
-hello() ->
-   get_random(hello_phrases()).
 
 bye_phrases() -> [
    "So long!",
@@ -39,6 +42,7 @@ bye_phrases() -> [
    "Until we meet again..",
    "Take some of the empties with ya, eh?"
 ].
+% response when a volunteer checks out
 bye() ->
    get_random(bye_phrases()).
 
@@ -61,14 +65,16 @@ open_phrases(Names) -> [
    [concatenate(Names), isare(Names), "running the show. Come on by!"],
    [concatenate(Names), isare(Names), "at the shop. Come on by!"]
 ].
+% response to "st" when shop is open
 open(Names) ->
    lists:flatten(get_random(open_phrases(Names))).
 
 shut_phrases() -> [
-   "The bike shop will not be open today.",
+   "The bike shop is not open today.",
    "Sorry, today we are closed - txt 'hours' for business hours.",
    "Closed today - txt 'hours' to see when we're open."
 ].
+% response to "st" when shop is not scheduled to be open
 shut() ->
    get_random(shut_phrases()).
 
@@ -81,11 +87,12 @@ closed_phrases(Scheduled) -> [
    Scheduled, " will be there."],
    ["Sorry, we're not here right now.. ", Scheduled, " will open shop around 6pm."]
 ].
+% response to a before-hours "st" when shop scheduled to be open
 closed(Scheduled) ->
    lists:flatten(get_random(closed_phrases(Scheduled))).
 
 late_phrases() -> [
-   "Usually open from 6pm to 9pm on weekdays.. But, not right now, sorry!",
+   "Usually open from 6pm to 9pm.. But, not right now, sorry!",
    "The bike coop is supposed to be open right now, but no one is here yet. Our apologies..",
    "Sorry, we should be open but no volunteers showed up yet.."
 ].
