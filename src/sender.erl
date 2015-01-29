@@ -15,7 +15,7 @@ loop(Mode) ->
          loop(Mode)
    end.
 
-
+% send message via twilio api
 send(Number, Message) ->
    {Username, Password} = secrets:twilio_auth(),
    UrlBase = lists:concat([
@@ -36,6 +36,7 @@ send(Number, Message) ->
    % fail hard on any error
    {ok,{{"HTTP/1.1",201,"CREATED"},_,_}} = Response.
 
+% send message via test relay (if registered, stdio otherwise)
 test_send(Number, Message) ->
   io:format("SMS to be sent to ~p: ~p~n", [Number,Message]),
   case lists:member(test_relay, registered()) of

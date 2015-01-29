@@ -8,6 +8,9 @@ epoch() ->
 now_to_seconds({Mega, Sec, _}) ->
     (Mega * 1000000) + Sec.
 
+
+% basic operations
+
 open() ->
    sqlite3:open(main, [{file, "../main.db"}]).
 

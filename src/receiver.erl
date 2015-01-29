@@ -5,7 +5,8 @@
 
 loop() ->
    receive
-      {[43|Number], Body} -> % % number must be preceeded by a "+"
+      % parse incoming message, identify source and dispatch to shop process
+      {[43|Number], Body} -> % number must be preceeded by a "+"
          % lowercase + tokenize body of message
          Tokens = string:tokens(string:to_lower(Body), " "),
          [A|Arguments] = Tokens,

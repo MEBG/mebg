@@ -4,11 +4,13 @@
 -module(shop).
 -export([loop/1]).
 
+% lists to map numbers to days-of-week and back
 days_list(name) ->
    [{"monday",1},{"tuesday",2},{"wednesday",3},{"thursday",4},{"friday",5},{"saturday",6},{"sunday",7}];
 days_list(number) ->
    [{1,"monday"},{2,"tuesday"},{3,"wednesday"},{4,"thursday"},{5,"friday"},{6,"saturday"},{7,"sunday"}].
 
+% map day of week to a number in [1..7]
 day_name_to_number(Day) ->
    case lists:keyfind(Day, 1, days_list(name)) of
       false -> 
@@ -18,6 +20,7 @@ day_name_to_number(Day) ->
          Index
    end.
 
+% produces a message to inform which days a volunteer is signed up for
 signed_up_days(Number) ->
    case db:get_days(Number) of
       [] -> "You're not signed up for any shifts.";
@@ -31,19 +34,22 @@ signed_up_days(Number) ->
 
 loop(Present) ->
    receive
+      % add a day of week to volunteer's schedule
       {{_,Number,volunteer,_,_,_}, add, Days} ->
          DayIndices = [day_name_to_number(D) || D <- Days],
          [db:add_day(Number,D) || D <- DayIndices, D =/= false],
          sms!{send, Number, signed_up_days(Number)},
          loop(Present);
          
+      % remove a day of week from volunteer's schedule
       {{_,Number,volunteer,_,_,_}, remove, Days} ->
          DayIndices = [day_name_to_number(D) || D <- Days],
          [db:remove_day(Number,D) || D <- DayIndices, D =/= false],
          sms!{send, Number, signed_up_days(Number)},
          loop(Present);
 
-      % volunteer arrival
+      % volunteer arrival: spawns a new volunteer process and adds it to
+      % the presence list (in-process and persisted in db)
       {{_,Number,volunteer,Name,_,_}, Action, _} when
             Action == i;
             Action == in;
@@ -60,7 +66,8 @@ loop(Present) ->
                loop(Present)
          end;
 
-      % volunteer departure
+      % volunteer departure: destroys matching volunteer process and
+      % clears number from presence lists (db and in-process)
       {{_,Number,volunteer,_,_,_}, Action, _} when
             Action == o;
             Action == out;
@@ -77,60 +84,8 @@ loop(Present) ->
                loop(Present)
          end;
 
-      % approval of member signup request by volunteer
-      {{_,Number,volunteer,_,_,_}, approve, _} ->
-         case maps:is_key(Number, Present) of
-            true ->
-               {V,_} = maps:get(Number, Present),
-               V ! approved;
-            false ->
-               void
-         end,
-         loop(Present);
-
-      % denial of member signup request by volunteer
-      {{_,Number,volunteer,_,_,_}, deny, _} ->
-         case maps:is_key(Number, Present) of
-            true ->
-               {V,_} = maps:get(Number, Present),
-               V ! denied,
-               loop(Present);
-            false ->
-               void
-         end,
-         loop(Present);
-
-
-      % membership inquiry
-      {{_,Number,member,_,_,_}, verify, _} ->
-         M = spawn(member, loop, [Number]),
-         M ! verify,
-         loop(Present);
-
-      % balance inquiry
-      {{_,Number,member,_,_,_}, balance, _} ->
-         M = spawn(member, loop, [Number]),
-         M ! balance,
-         loop(Present);
-
-      % signup request from unknown number
-     {{_,Number,unknown,_,_,_}, signup, Arguments} ->
-         % create a process to wait for response
-         U = spawn(unknown, init, [{Number,Arguments}]),
-         Open = maps:size(Present) > 0,
-         if
-            Open ->
-               % grab first volunteer (for now)
-               [{V,_}|_] = maps:values(Present),
-               V ! {U, signup},
-               loop(Present);
-            true ->
-               U ! denied,
-               loop(Present)
-         end;
-
       % notify on-shift volunteers that the downstairs door is locked
-     {{_,Number,_,_,_,_}, Action, _} when
+      {{_,Number,_,_,_,_}, Action, _} when
             Action == locked;
             Action == door ->
          case maps:size(Present) > 0 of
@@ -143,7 +98,8 @@ loop(Present) ->
          end,
          loop(Present);
 
-      % schedule query
+      % schedule query: responds with list of days
+      % and which volunteers are signed up for them
       {{_,Number,_,_,_,_}, Action, []} when
             Action == h;
             Action == schedule;
@@ -163,7 +119,8 @@ loop(Present) ->
          end,
          loop(Present);
 
-      % "is the shop open" query
+      % returns a message indicating whether the shop is open,
+      % if it was supposed to be open and isn't, etc
       {{_,Number,_,_,_,_}, Action, _} when
             Action == s;
             Action == st;
