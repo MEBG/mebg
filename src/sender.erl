@@ -39,9 +39,9 @@ send(Number, Message) ->
 % send message via test relay (if registered, stdio otherwise)
 test_send(Number, Message) ->
   io:format("SMS to be sent to ~p: ~p~n", [Number,Message]),
-  case lists:member(test_relay, registered()) of
+  case lists:member(listener, registered()) of
     true ->
-      test_relay!{send,Number,Message};
+      listener!{Number,Message};
     false ->
       void
   end.

@@ -12,7 +12,37 @@
 % bootstrap test environment
 init() ->
    keepalive:init(test),
+   register(listener, spawn(test,listener,[[]])),
    register(test_relay, spawn(test,relay,[void])).
+
+% collects all received messages for later inspection
+listener(Messages) ->
+   receive
+      empty ->
+         listener([]);
+      q ->
+         io:format("listener received ~p messages~n",[length(Messages)]),
+         listener(Messages);
+      {Number, Message} ->
+         listener(lists:reverse([{Number,Message}|Messages]));
+      Pid ->
+         [H|T] = Messages,
+         Pid ! H,
+         listener(T)
+   end.
+
+% init with a list of expected {number,message} tuples
+expected([]) -> ok;
+expected(Messages) ->
+   receive
+      {Number,Message} ->
+         [H|T] = Messages,
+         {Number,Message} = H,
+         expected(T);
+      q ->
+         io:format("~p expected messages remain~n",[length(Messages)]),
+         expected(Messages)
+   end.
 
 % relays message to trap process
 relay(TrapId) ->
