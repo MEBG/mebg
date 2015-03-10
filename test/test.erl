@@ -12,64 +12,35 @@
 % bootstrap test environment
 init() ->
    keepalive:init(test),
-   register(listener, spawn(test,listener,[[]])),
-   register(test_relay, spawn(test,relay,[void])).
+   register(relay, spawn(test,relay,[#{}])).
 
 % collects all received messages for later inspection
-listener(Messages) ->
+relay(Actors) ->
    receive
-      empty ->
-         listener([]);
-      q ->
-         io:format("listener received ~p messages~n",[length(Messages)]),
-         listener(Messages);
-      {Number, Message} ->
-         listener(lists:reverse([{Number,Message}|Messages]));
-      Pid ->
-         [H|T] = Messages,
-         Pid ! H,
-         listener(T)
+      {{Pid, Role, Name}, register, Number} -> % add actor to active list
+         relay(maps:put(Number, {Pid, Role, Name}, Actors));
+      {send, Number, Message} -> % fwd from test_send
+         io:format("[## relay] ~p~n", [Message]),
+         case maps:is_key(Number, Actors) of
+            true ->
+               {Actor, _, _} = maps:get(Number, Actors),
+               Actor ! Message
+         end,
+         relay(Actors);
+      {_, Message} ->
+         io:format("[>> relay] ~p~n", [Message]),
+         % Number = reverse-lookup-from-pid
+         % send(Number, Message)
+         relay(Actors);
+      list_actors ->
+         io:format("[actor count] ~p~n", [maps:size(Actors)]),
+         relay(Actors);
+      _ ->
+         io:format("[>> relay] UNKNOWN~n"),
+         relay(Actors)
    end.
 
-% init with a list of expected {number,message} tuples
-expected([]) -> ok;
-expected(Messages) ->
-   receive
-      {Number,Message} ->
-         [H|T] = Messages,
-         {Number,Message} = H,
-         expected(T);
-      q ->
-         io:format("~p expected messages remain~n",[length(Messages)]),
-         expected(Messages)
-   end.
-
-% relays message to trap process
-relay(TrapId) ->
-   receive
-      % set up with id of trap process
-      {pid,Pid} ->
-         relay(Pid);
-      % relay any message to trap process & forget trap process id
-      {send,Number,Message} when void =/= TrapId ->
-         TrapId!{Number,Message},
-         relay(void)
-   end.
-
-% trap process - expects to receive & return a message before timeout 
-trap(Timeout, SendFunction) ->
-   test_relay ! {pid,self()},
-   timer:sleep(50),
-   SendFunction(),
-   receive
-      {Number,Message} ->
-         {Number,Message}
-   after Timeout ->
-      error
-   end.
 
 % sends synchronous request to Number, returns response message
-send(Number, Message) ->
-   trap(100, fun() -> 
-      rcvr!{lists:flatten(["+"|Number]), Message} end
-   ).
+% send(Number, Message) ->
+%    rcvr!{lists:flatten(["+"|Number]), Message}.
