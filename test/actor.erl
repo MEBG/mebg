@@ -13,29 +13,28 @@
 
 -module(actor).
 
--export([init/2, consume/1]).
+-export([init/2]).
 
-% {Id, Number, Role, Name, Expiry, Balance}
-init({_, Number, Role, Name, _, _}, Script) ->
-   relay ! {{self(), Role, Name}, register, Number},
+init({Number, Role}, Script) ->
+   relay ! {self(), Number, Role},
    consume(Script).
 
-consume([]) -> void;
+consume([]) ->
+   relay ! {self(), remove};
 
 consume([T]) ->
-   process(T);
+   process(T, []);
 
 consume([H|T]) ->
-   process(H),
-   consume(T).
+   process(H, T).
 
-process({send, Message}) ->
-   io:format("[send] ~p~n", [Message]),
-   relay ! {self(), Message};
+process({send, Message}, T) ->
+   relay ! {self(), Message},
+   consume(T);
 
-process({wait, Expected}) ->
+process({wait, Expected}, T) ->
    receive
       Actual ->
-         io:format("[received] ~p~n", [Actual]),
-         Actual = Expected % pass if ok
+         Actual = Expected, % pass if ok
+         consume(T)
    end.
