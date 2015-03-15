@@ -1,7 +1,11 @@
+%
+% strings comprising various messages sent by system
+%
+
 {default, {concatenate, [
-   "mile end bike garage",
-   "135 rue Van Horne #201",
-   "txt 'H' for schedule, 'S' to check if open.",
+   "mile end bike garage",10,
+   "135 rue Van Horne #201",10,
+   "txt 'H' for schedule, 'S' to check if open.",10,
    "http://bikegarage.org"
 ]}}.
 
@@ -30,6 +34,40 @@
    "Take some of the empties with ya, eh?"
 ]}}.
 
+{timeout, {random, [
+   "Schedule bot signed you out",
+   "It's a little latte, imma call it a night",
+   "Probly a bit past closing time, gonna sign you out now"
+]}}.
+
+{empty, {random, [
+   "The schedule is empty, no one has signed up. Shop's closed.",
+   "Looks like no one is signed up for a shift. That's sad..",
+   "Nobody is volunteering these days, we're closed",
+   "Bike shop is closed until someone signs up for a shift"
+]}}.
+
+{shedule,
+   {random,
+      {build, {[], " and "}, [
+         [{"18h-21h "}, {subject}]
+      ]}
+   }
+}.
+
+{days,
+   {random,
+      {build, {[], " and"}, [
+      [{"You're signed up for "}, {subject}],
+      [{"We've got you on "}, {subject}],
+      [{"It sez here you're doing "}, {subject}]
+]}}}.
+
+{notsignedup, {random, [
+   "You're not signed up for any shifts.",
+   "You are not signed up for any days of the week"
+]}}.
+
 {late, {random, [
    "Usually open from 6pm to 9pm.. But, not right now, sorry!",
    "The bike coop is supposed to be open right now, but no one is here yet. Our apologies..",
@@ -50,7 +88,24 @@
          [{"Open for business - "}, {subject}, {verb}, {"helping out."}],
          [{subject}, {verb}, {"running the show. Come on by!"}],
          [{subject}, {verb}, {"at the shop. Come on by!"}]
-         ]
-      }
+      ]}
    }
 }.
+
+{door_open,
+   {random, [
+      "Downstairs door is locked again..",
+      "Someone's locked out downstairs"
+]}}.
+
+{door_closed,
+   {random, [
+      "Sorry, no one is here right now.",
+      "The bike shop is closed."
+]}}.
+
+{door_wait,
+   {random, [
+      "Not again! Nofified a volunteer, someone should be down in a minute.",
+      "Someone's coming to open the door, as soon as they get this text."
+]}}.

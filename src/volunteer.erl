@@ -11,8 +11,7 @@ loop(Number) ->
          sms ! {send, Number,"A membership request appears"},
          signup(Number, Pid);
       % terminate process on "depart"
-      goodbye ->
-         sms ! {send, Number, greetings:bye()};
+      goodbye -> void;
       Other ->
          io:format("unexpected message sent to volunteer: ~p~n", [Other]),
          loop(Number)
@@ -20,8 +19,9 @@ loop(Number) ->
       {_,{Hour,_,_}} = erlang:localtime(),
       if
          Hour < 17 orelse Hour > 21 -> % magic numbers, bad form
-            sms ! {send, Number, "Schedule bot signed you out"},
-            coop!{{void,Number,volunteer,void,void,void},depart,void};
+            sms ! {send, Number, {timeout}},
+            Person = {void, Number, volunteer, void, void, void},
+            coop ! {Person, depart, void};
          true ->
             loop(Number)
       end
