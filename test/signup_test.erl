@@ -44,3 +44,15 @@
 % g2) volunteer responds (no): [no response]
 % 
  
+
+t100_status_test() ->
+   Number = "111",
+   {Number,Message} = test:send(Number,"status"),
+   Scheduled = db:get_volunteers_today(),
+   case Scheduled of
+      [] ->
+         [Expected] = [lists:flatten(M)||M<-greetings:shut_phrases(), lists:flatten(M) == Message];
+      _ ->
+         [Expected] = [lists:flatten(M)||M<-greetings:closed_phrases(Scheduled), lists:flatten(M) == Message]
+   end,
+   Message = Expected.

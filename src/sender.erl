@@ -1,6 +1,10 @@
-% process dispatching outgoing sms
+% Process dispatching outgoing messages
+%
+% Can be switched between normal and test operation
+%
 
 -module(sender).
+
 -export([loop/1]).
 
 loop(Mode) ->
@@ -28,8 +32,8 @@ send(Number, Message) ->
       "&Body=", Message],
    io:format("sending to ~p: ~p~n", [Number,Message]),
    timer:sleep(1000), % throttle outgoing messages
-   Response = httpc:request(post, 
-       {lists:flatten(Url), [], 
+   Response = httpc:request(post,
+       {lists:flatten(Url), [],
        "application/x-www-form-urlencoded",
        lists:flatten(Parameters)
        }, [], []),
@@ -38,11 +42,10 @@ send(Number, Message) ->
 
 % send message via test relay (if registered, stdio otherwise)
 test_send(Number, Message) ->
-  io:format("SMS to be sent to ~p: ~p~n", [Number,Message]),
-  case lists:member(test_relay, registered()) of
+  case lists:member(relay, registered()) of
     true ->
-      test_relay!{send,Number,Message};
+      relay ! {send, Number, Message};
     false ->
-      void
+      io:format("test sms NOT sent to ~p: ~p~n", [Number,Message])
   end.
 

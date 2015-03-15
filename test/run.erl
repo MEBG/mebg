@@ -1,7 +1,7 @@
 -module(run).
 -export([go/0]).
 
-go() -> 
+go() ->
    test:init(),
    presence_test:test(),
-   schedule_test:test().   
+   schedule_test:test().
