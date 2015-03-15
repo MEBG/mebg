@@ -1,6 +1,6 @@
 % for launching registered processes that must keep running
 -module(keepalive).
--export([launch/4, init/1]).
+-export([launch/4, init/1, stop/0]).
 
 
 % spawn an auto-restarting process
@@ -25,3 +25,8 @@ init(Mode) ->
    % launch(box,cashbox,loop,fun() -> [db:get_transaction_balance()] end),
    launch(coop,shop,loop,fun() -> [db:get_present_volunteers()] end),
    launch(rcvr,receiver,loop, fun() -> [] end).
+
+stop() ->
+   unregister(rcvr),
+   unregister(coop),
+   unregister(sms).
