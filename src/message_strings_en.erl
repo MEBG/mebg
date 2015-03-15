@@ -47,9 +47,9 @@
    "Bike shop is closed until someone signs up for a shift"
 ]}}.
 
-{shedule,
+{schedule,
    {random,
-      {build, {[], " and "}, [
+      {build, {[null, null], ""}, [
          [{"18h-21h "}, {subject}]
       ]}
    }
@@ -57,10 +57,10 @@
 
 {days,
    {random,
-      {build, {[], " and"}, [
+      {build, {[null, null], " and "}, [
       [{"You're signed up for "}, {subject}],
       [{"We've got you on "}, {subject}],
-      [{"It sez here you're doing "}, {subject}]
+      [{"It says here you're doing "}, {subject}]
 ]}}}.
 
 {notsignedup, {random, [

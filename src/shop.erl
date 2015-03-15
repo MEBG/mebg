@@ -13,26 +13,24 @@ day_name_to_number(Day) ->
       {_, Index} -> Index
    end.
 
+scheduled(Number) -> scheduled(Number, db:get_days(Number)).
+scheduled(Number, []) -> sms ! {send, Number, {notsignedup}};
+scheduled(Number, Shifts) -> sms ! {send, Number, {days, Shifts}}.
+
 loop(Present) ->
    receive
       % add a day of week to volunteer's schedule
       {{_, Number, volunteer, _, _, _}, add, Days} ->
          DayIndices = [day_name_to_number(D) || D <- Days],
          [db:add_day(Number, D) || D <- DayIndices, D =/= false],
-         sms ! {send, Number, {days, db:get_days(Number)}},
+         scheduled(Number),
          loop(Present);
 
       % remove a day of week from volunteer's schedule
       {{_, Number, volunteer, _, _, _}, remove, Days} ->
          DayIndices = [day_name_to_number(D) || D <- Days],
          [db:remove_day(Number,D) || D <- DayIndices, D =/= false],
-         Shifts = db:get_days(Number),
-         case Shifts == [] of
-            true ->
-               sms ! {send, Number, {notsignedup}};
-            false ->
-               sms ! {send, Number, {days, Shifts}}
-         end,
+         scheduled(Number),
          loop(Present);
 
       % volunteer arrival: spawns a new volunteer process and adds it to

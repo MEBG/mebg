@@ -34,11 +34,12 @@ send(Number, Message) ->
       "api.twilio.com/2010-04-01/Accounts/",
       Username,"/Messages.json"]),
    Url = ["https://", Username, ":", Password, "@", UrlBase],
+   M = messages:render(Message),
    Parameters = [
       "From=",secrets:twilio_number(),
       "&To=",Number,
-      "&Body=", Message],
-   io:format("sending to ~p: ~p~n", [Number,Message]),
+      "&Body=", M],
+   io:format("sending to ~p: ~p~n", [Number, M]),
    timer:sleep(1000), % throttle outgoing messages
    Response = httpc:request(post,
        {lists:flatten(Url), [],

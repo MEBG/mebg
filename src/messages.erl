@@ -39,27 +39,3 @@ assemble(random, {build, {[_, Plural], Conjunction}, Phrases}, [H|T]) ->
 
 assemble(random, Elements, _) -> get_random(Elements);
 assemble(concatenate, Elements, _) -> lists:flatten(Elements).
-
-
-% days_list() ->
-%    [{"monday",1},{"tuesday",2},{"wednesday",3},{"thursday",4},{"friday",5},{"saturday",6},{"sunday",7}];
-% day_name_to_number(Day) ->
-%    case lists:keyfind(Day, 1, days_list()) of
-%       false ->
-%          false;
-%       Idx ->
-%          {_,Index} = Idx,
-%          Index
-%    end.
-
-% % produces a message to inform which days a volunteer is signed up for
-% signed_up_days(Number) ->
-%    case db:get_days(Number) of
-%       [] -> "You're not signed up for any shifts.";
-%       Days ->
-%          lists:concat([
-%             "You're signed up for ",
-%             greetings:concatenate(Days),
-%             "."
-%          ])
-%    end.
