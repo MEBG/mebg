@@ -43,11 +43,13 @@ loop(Present) ->
             Action == open ->
          case maps:is_key(Number, Present) of
             false ->
+               io:format("volunteer, just got in~n", []),
                V = spawn(volunteer,loop,[Number]),
                sms ! {send, Number, {hello}},
                db:set_presence(Number,true),
                loop(maps:put(Number, {V,Name}, Present));
             true ->
+               io:format("volunteer, already present~n", []),
                loop(Present)
          end;
 
@@ -141,7 +143,7 @@ loop(Present) ->
       isOpen ->
          io:format("shop open: ~p~n", [maps:size(Present) > 0]),
          loop(Present);
-      {Other} ->
+      Other ->
          io:format("shop default unrecognized: ~p~n", [Other]),
          loop(Present)
    end.
