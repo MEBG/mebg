@@ -29,7 +29,7 @@ consume([H|T]) -> process(H, T).
 
 process(delay, T) ->
    % io:format("~p delaying~n", [self()]),
-   timer:sleep(50),
+   timer:sleep(20),
    consume(T);
 
 process(wait, T) ->

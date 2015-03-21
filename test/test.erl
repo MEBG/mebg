@@ -24,7 +24,7 @@ init() ->
 run(Set) ->
    [spawn(actor, init, [Number, Role, Script])
    || [Number, Role, Script] <- Set],
-   timer:sleep(200),
+   timer:sleep(100),
    relay ! {self(), transcribe},
    relay ! empty,
    receive Actual ->
