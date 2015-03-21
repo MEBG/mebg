@@ -21,24 +21,21 @@ init() ->
    keepalive:init(test),
    register(relay, spawn(test,relay,[#{}, []])).
 
-run(Roster, Expected, Validate) ->
+run(Set) ->
    [spawn(actor, init, [Number, Role, Script])
-   || [Number, Role, Script] <- Roster],
+   || [Number, Role, Script] <- Set],
    timer:sleep(200),
    relay ! {self(), transcribe},
    relay ! empty,
    receive Actual ->
-      erlang:display(Expected),
-      erlang:display(Actual),
-      Equal = Expected == Actual,
-      ?assertEqual(Validate, Equal)
+      Actual
    after 150 ->
-      ?assert(false)
+      false
    end.
 
 kill() ->
-   unregister(relay),
-   keepalive:stop().
+   keepalive:stop(),
+   unregister(relay).
 
 % collects all received messages for later inspection
 relay(Actors, Transcript) ->

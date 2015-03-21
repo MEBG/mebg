@@ -27,17 +27,17 @@ consume([]) -> relay ! {self(), remove};
 consume([T]) -> process(T, []);
 consume([H|T]) -> process(H, T).
 
-process({send, Message}, T) ->
-   relay ! {self(), Message},
-   consume(T);
-
-process({delay, Delay}, T) ->
+process(delay, T) ->
    % io:format("~p delaying~n", [self()]),
-   timer:sleep(Delay),
+   timer:sleep(50),
    consume(T);
 
-process({wait}, T) ->
+process(wait, T) ->
    % io:format("~p waiting~n", [self()]),
    receive _ -> consume(T)
    after 2000 -> void
-   end.
+   end;
+
+process(Message, T) ->
+   relay ! {self(), Message},
+   consume(T).
