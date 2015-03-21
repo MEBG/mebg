@@ -4,7 +4,7 @@
 
 -module(messages).
 
--export([render/1]).
+-export([render/1, cc/2]).
 
 % English by default
 render({Template}) -> render("en", Template, null);
@@ -25,6 +25,7 @@ get_random(List) ->
    R.
 
 % concatenate list with appropriate separators
+cc(_, []) -> "";
 cc(Conj, [H|T]) -> cc(Conj, H, T).
 cc(Conj, String, [T]) -> lists:concat([String, Conj, T]);
 cc(Conj, String, [H|T]) -> cc(Conj, lists:concat([String, ", ", H]), T).

@@ -141,7 +141,7 @@ loop(Present) ->
       isOpen ->
          io:format("shop open: ~p~n", [maps:size(Present) > 0]),
          loop(Present);
-      {Other} ->
+      Other ->
          io:format("shop default unrecognized: ~p~n", [Other]),
          loop(Present)
    end.

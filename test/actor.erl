@@ -13,28 +13,31 @@
 
 -module(actor).
 
--export([init/2]).
+-export([init/3]).
 
-init({Number, Role}, Script) ->
+-include_lib("eunit/include/eunit.hrl").
+
+
+init(Number, Role, Script) ->
+   % io:format("~p spawned from ~p~n", [self(), Number]),
    relay ! {self(), Number, Role},
    consume(Script).
 
-consume([]) ->
-   relay ! {self(), remove};
+consume([]) -> relay ! {self(), remove};
+consume([T]) -> process(T, []);
+consume([H|T]) -> process(H, T).
 
-consume([T]) ->
-   process(T, []);
-
-consume([H|T]) ->
-   process(H, T).
-
-process({send, Message}, T) ->
-   relay ! {self(), Message},
+process(delay, T) ->
+   % io:format("~p delaying~n", [self()]),
+   timer:sleep(20),
    consume(T);
 
-process({wait, Expected}, T) ->
-   receive
-      Actual ->
-         Actual = Expected, % pass if ok
-         consume(T)
-   end.
+process(wait, T) ->
+   % io:format("~p waiting~n", [self()]),
+   receive _ -> consume(T)
+   after 2000 -> void
+   end;
+
+process(Message, T) ->
+   relay ! {self(), Message},
+   consume(T).
