@@ -19,6 +19,7 @@
 
 
 init(Number, Role, Script) ->
+   % io:format("~p spawned from ~p~n", [self(), Number]),
    relay ! {self(), Number, Role},
    consume(Script).
 
@@ -30,9 +31,13 @@ process({send, Message}, T) ->
    relay ! {self(), Message},
    consume(T);
 
-process({wait, Expected}, T) ->
-   receive
-      Actual ->
-         Actual = Expected, % pass if ok
-         consume(T)
+process({delay, Delay}, T) ->
+   % io:format("~p delaying~n", [self()]),
+   timer:sleep(Delay),
+   consume(T);
+
+process({wait}, T) ->
+   % io:format("~p waiting~n", [self()]),
+   receive _ -> consume(T)
+   after 2000 -> void
    end.
