@@ -158,9 +158,9 @@ get_schedule_day(Day) ->
       inner join schedule_recurring sr on p.id = sr.volunteer
       WHERE day = ", Day, ";"
    ]),
-   [{_,_},{rows,Rows}] = sqlite3:sql_exec(main,Query),   
+   [{_,_},{rows,Rows}] = sqlite3:sql_exec(main,Query),
    close(),
-   greetings:concatenate([binary_to_list(R) || {R} <- Rows]).
+   messages:cc(" and ", [binary_to_list(R) || {R} <- Rows]).
 
 get_volunteers_today() ->
    {Date,_} = erlang:localtime(),
@@ -175,7 +175,7 @@ get_volunteers_today() ->
 get_present_volunteers() ->
    open(),
    Query = "SELECT phone, name FROM (SELECT present, phone, name, timestamp FROM presence pr INNER JOIN person p ON p.id = pr.person_id GROUP BY p.id ORDER BY timestamp) WHERE present == 1;",
-   Result = sqlite3:sql_exec(main,Query),   
+   Result = sqlite3:sql_exec(main,Query),
    close(),
    case Result of
       [{_,_},{rows,Rows}] ->

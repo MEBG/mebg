@@ -9,7 +9,7 @@
 % 2- one or more volunteer signed in
 %
 % initial message from:
-% 
+%
 % 1- unknown
 % 2- expired member
 % 3- current monthly member
@@ -17,7 +17,7 @@
 % 5- volunteer
 %
 % recognizable messages:
-% 
+%
 % 1- signup
 % 2- signup John Doe
 % 3- signup month
@@ -35,24 +35,12 @@
 % e) 2-[1,2]-[1,2,3,4]: (volunteer, "(number) requesting monthly membership, respond (yes) if $5 paid, (no) otherwise."
 % f) 2-[1,2]-[5,6]: (volunteer, "(number) requesting annual membership, respond (yes) if $20 paid, (no) otherwise."
 % g) 2-[3]-[5,6]: (volunteer, "(number) requesting membership upgrade to annual, respond (yes) if $15 paid, (no) otherwise."
-% 
+%
 % In cases of f) and g), the transaction is incomplete until the volunteer responds, and the original sender receives a confirmation / denial message
 %
 % f1) volunteer responds (yes): "(number, Your new membership is valid until _____")
 % f2) volunteer responds (no): [no response]
 % g1) volunteer responds (yes): "(number, Your new membership is valid until _____")
 % g2) volunteer responds (no): [no response]
-% 
- 
+%
 
-t100_status_test() ->
-   Number = "111",
-   {Number,Message} = test:send(Number,"status"),
-   Scheduled = db:get_volunteers_today(),
-   case Scheduled of
-      [] ->
-         [Expected] = [lists:flatten(M)||M<-greetings:shut_phrases(), lists:flatten(M) == Message];
-      _ ->
-         [Expected] = [lists:flatten(M)||M<-greetings:closed_phrases(Scheduled), lists:flatten(M) == Message]
-   end,
-   Message = Expected.
