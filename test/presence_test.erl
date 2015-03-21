@@ -1,62 +1,103 @@
 -module(presence_test).
+
 -compile(export_all).
+
 -include_lib("eunit/include/eunit.hrl").
 
+%
+% Test signing in and out
+%
+% sign in by unknown
+% sign in by member
+% sign in and out by volunteer
+% double sign in by volunteer
+% double sign out by volunteer
+%
 
-t100_status_test() ->
-   Number = "111",
-   {Number,Message} = test:send(Number,"status"),
-   Scheduled = db:get_volunteers_today(),
-   case Scheduled of
-      [] ->
-         [Expected] = [lists:flatten(M)||M<-greetings:shut_phrases(), lists:flatten(M) == Message];
-      _ ->
-         [Expected] = [lists:flatten(M)||M<-greetings:closed_phrases(Scheduled), lists:flatten(M) == Message]
-   end,
-   Message = Expected.
 
-t200_arrive_test() ->
-   Number = "111",
-   {Number,M1} = test:send(Number,"arrive"),
-   [M1] = [M||M<-greetings:hello_phrases(), M == M1],
-   {Number,M2} = test:send(Number,"status"),
-   [M2] = [lists:flatten(M)||M<-greetings:open_phrases(["TV01"]), lists:flatten(M) == M2].
-   
-t300_depart_test() ->
-   Number = "111",
-   {Number,M1} = test:send(Number,"depart"),
-   [M1] = [M||M<-greetings:bye_phrases(), M == M1],
-   {Number,M2} = test:send(Number,"status"),
-   Scheduled = db:get_volunteers_today(),
-   case Scheduled of
-      [] ->
-         [Expected] = [lists:flatten(M)||M<-greetings:shut_phrases(), lists:flatten(M) == M2];
-      _ ->
-         [Expected] = [lists:flatten(M)||M<-greetings:closed_phrases(Scheduled), lists:flatten(M) == M2]
-   end,
-   M2 = Expected.
 
-t310_depart_test() ->
-   Number = "111",
-   error = test:send(Number,"depart").
+t100_signin_unknown_test() ->
+   Person = [in, wait],
+   Expected = [
+      {"123", in},
+      {{default}, "123"}
+   ],
+   Set = [
+      ["123", unknown, Person]
+   ],
+   ?assertEqual(Expected, test:run(Set)).
 
-t400_double_arrive_test() ->
-   {"111",_} = test:send("111","arrive"),
-   {"222",_} = test:send("222","arrive"),
-   {"111",Message} = test:send("111","status"),
-   [Message] = [lists:flatten(M)||M<-greetings:open_phrases(["TV01", "TV02"]), lists:flatten(M) == Message].
+t102_signout_unknown_test() ->
+   Person = [out, wait],
+   Expected = [
+      {"123", out},
+      {{default}, "123"}
+   ],
+   Set = [
+      ["123", unknown, Person]
+   ],
+   ?assertEqual(Expected, test:run(Set)).
 
-t410_double_depart_test() ->
-   {"111",_} = test:send("111","depart"),
-   {"111",M1} = test:send("111","status"),
-   [M1] = [lists:flatten(M)||M<-greetings:open_phrases(["TV02"]), lists:flatten(M) == M1],
-   {"222",_} = test:send("222","depart"),
-   {"111",M2} = test:send("111","status"),
-   Scheduled = db:get_volunteers_today(),
-   case Scheduled of
-      [] ->
-         [Expected] = [lists:flatten(M)||M<-greetings:shut_phrases(), lists:flatten(M) == M2];
-      _ ->
-         [Expected] = [lists:flatten(M)||M<-greetings:closed_phrases(Scheduled), lists:flatten(M) == M2]
-   end,
-   M2 = Expected.
+t104_signin_member_test() ->
+   Person = [in, wait],
+   Expected = [
+      {"112", in},
+      {{default}, "112"}
+   ],
+   Set = [
+      ["112", member, Person]
+   ],
+   ?assertEqual(Expected, test:run(Set)).
+
+t106_signout_member_test() ->
+   Person = [out, wait],
+   Expected = [
+      {"112", out},
+      {{default}, "112"}
+   ],
+   Set = [
+      ["112", member, Person]
+   ],
+   ?assertEqual(Expected, test:run(Set)).
+
+t110_signin_signout_volunteer_test() ->
+   Person = [in, wait, out, wait],
+   Expected = [
+      {"111", in},
+      {{hello}, "111"},
+      {"111", out},
+      {{bye}, "111"}
+   ],
+   Set = [
+      ["111", volunteer, Person]
+   ],
+   ?assertEqual(Expected, test:run(Set)).
+
+t112_signin_twice_volunteer_test() ->
+   Person = [in, wait, in, out, wait],
+   Expected = [
+      {"111", in},
+      {{hello}, "111"},
+      {"111", in},
+      {"111", out},
+      {{bye}, "111"}
+   ],
+   Set = [
+      ["111", volunteer, Person]
+   ],
+   ?assertEqual(Expected, test:run(Set)).
+
+t114_signin_twice_volunteer_test() ->
+   Person = [in, wait, out, wait, out],
+   Expected = [
+      {"111", in},
+      {{hello}, "111"},
+      {"111", out},
+      {{bye}, "111"},
+      {"111", out}
+   ],
+   Set = [
+      ["111", volunteer, Person]
+   ],
+   ?assertEqual(Expected, test:run(Set)).
+
