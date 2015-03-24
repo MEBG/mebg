@@ -53,8 +53,7 @@
 ]}}.
 
 % response to "schedule" when there are shifts scheduled
-{schedule,
-   {random,
+{schedule, {random,
       {build, {[null, null], ""}, [
          [{"18h-21h "}, {subject}]
       ]}
@@ -62,8 +61,7 @@
 }.
 
 % response to volunteer after adding/removing days to schedule
-{days,
-   {random,
+{days, {random,
       {build, {[null, null], " and "}, [
       [{"You're signed up for "}, {subject}],
       [{"We've got you on "}, {subject}],
@@ -91,35 +89,64 @@
 ]}}.
 
 % response to "status" when volunteers are signed in
-{open,
-   {random,
-      {build, {[" is ", " are "], " and "}, [
-         [{"The bike shop is open, with "}, {subject}, {" on duty"}],
-         [{"Yes, we're open! "}, {subject}, {verb}, {"here."}],
-         [{"Open for business - "}, {subject}, {verb}, {"helping out."}],
-         [{subject}, {verb}, {"running the show. Come on by!"}],
-         [{subject}, {verb}, {"at the shop. Come on by!"}]
-      ]}
-   }
-}.
+{open, {random,
+   {build, {[" is ", " are "], " and "}, [
+      [{"The bike shop is open, with "}, {subject}, {" on duty"}],
+      [{"Yes, we're open! "}, {subject}, {verb}, {"here."}],
+      [{"Open for business - "}, {subject}, {verb}, {"helping out."}],
+      [{subject}, {verb}, {"running the show. Come on by!"}],
+      [{subject}, {verb}, {"at the shop. Come on by!"}]
+   ]}
+}}.
 
 % sent to a signed-in volunteer when someone is locked out downstairs
-{door_open,
-   {random, [
-      "Downstairs door is locked again..",
-      "Someone's locked out downstairs"
+{door_open, {random, [
+   "Downstairs door is locked again..",
+   "Someone's locked out downstairs"
 ]}}.
 
 % response sent to locked out person when noone is signed in
-{door_closed,
-   {random, [
-      "Sorry, no one is here right now.",
-      "The bike shop is closed."
+{door_closed, {random, [
+   "Sorry, no one is here right now.",
+   "The bike shop is closed."
 ]}}.
 
 % response sent to locked out person when a volunteer is present
-{door_wait,
-   {random, [
-      "Not again! Nofified a volunteer, someone should be down in a minute.",
-      "Someone's coming to open the door, as soon as they get this text."
+{door_wait, {random, [
+   "Not again! Nofified a volunteer, someone should be down in a minute.",
+   "Someone's coming to open the door, as soon as they get this text."
 ]}}.
+
+% response sent to unknown signup request when noone is signed in
+{signup_closed_unknown, {random, [
+   "Sorry, no volunteers are signed in to handle your request right now.",
+   "Membership requests are confirmed by a volunteer - no one signed in right now, sorry."
+]}}.
+
+% response sent to expired member signup request when noone is signed in
+{signup_closed_expired, {random, [
+   "Sorry, no one is signed in to help renew your membership righ now.",
+   "Membership renewals are confirmed by a volunteer - no one signed in right now, sorry."
+]}}.
+
+% response sent to current member signup request when noone is signed in
+{signup_closed_current, {random, [
+   "Sorry, no one is signed in to help upgrade your membership rignt now.",
+   "Membership upgrades are confirmed by a volunteer - no one signed in right now, sorry."
+]}}.
+
+% response sent to volunteer signup request when noone is signed in
+{signup_closed_volunteer, {random, [
+   "Silly rabbit, you're a volunteer - no need to sign up.",
+   "Wait, what?",
+   "Why would you want to do that?"
+]}}.
+
+{approved, {random,
+   {build, {[null, null], ""}, [
+      ["Thanks for signing up! Your membership is good until ", {subject}],
+      ["Thank you for supporting the shop! You're a membership until ", {subject}],
+      ["Thanks for buying a membership - you're good until ", {subject}],
+      ["Your membership is good until ", {subject}, " - thank you!"]
+   ]}
+}}.
