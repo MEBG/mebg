@@ -136,6 +136,10 @@
 ]}}.
 
 % response sent to volunteer signup request when noone is signed in
+% NOTE
+% this will change when sign up by proxy is implemented
+% (volunteer signing up someone by number / email when that
+%  person does not have a cell phone)
 {signup_closed_volunteer, {random, [
    "Silly rabbit, you're a volunteer - no need to sign up.",
    "Wait, what?",
