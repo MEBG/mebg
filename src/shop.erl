@@ -141,6 +141,9 @@ loop(Present) ->
       present ->
          io:format("present volunteers: ~p~n", [Present]),
          loop(Present);
+      reset ->
+         [db:presence(Number, false) || [Number] <- maps:keys(Present)],
+         loop(#{});
       isOpen ->
          io:format("shop open: ~p~n", [maps:size(Present) > 0]),
          loop(Present);

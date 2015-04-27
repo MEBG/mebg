@@ -19,17 +19,22 @@
 % bootstrap test environment
 init() ->
    keepalive:init(test),
-   register(relay, spawn(test,relay,[#{}, []])).
+   keepalive:launch(relay, test, relay, fun() -> [#{}, []] end).
 
-run(Set) ->
+run(Set) -> run(Set, 250).
+run(Set, Timeout) ->
+   relay ! empty,
    [spawn(actor, init, [Number, Role, Script])
    || [Number, Role, Script] <- Set],
-   timer:sleep(100),
+   timer:sleep(Timeout),
    relay ! {self(), transcribe},
    relay ! empty,
+   % reset presence of all volunteers in original script
+   % in case the script did not terminate correctly
+   coop!reset,
    receive Actual ->
       Actual
-   after 150 ->
+   after 50 ->
       false
    end.
 
@@ -63,7 +68,9 @@ relay(Actors, Transcript) ->
          relay(Actors, Transcript);
       {Pid, Action} ->
          {Number, Role} = maps:get(Pid, Actors),
-         coop ! {{Pid, Number, Role, null, null, null}, Action, null},
+         Person = {Pid, Number, Role, null, null, null},
+         coop ! {Person, Action, null},
          relay(Actors, [{Number, Action} | Transcript]);
-      empty -> relay(#{}, [])
+      empty -> relay(#{}, []);
+      kill -> ok
    end.

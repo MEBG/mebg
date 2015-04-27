@@ -23,13 +23,14 @@ init(Number, Role, Script) ->
    relay ! {self(), Number, Role},
    consume(Script).
 
-consume([]) -> relay ! {self(), remove};
+consume([]) ->
+   relay ! {self(), remove};
 consume([T]) -> process(T, []);
 consume([H|T]) -> process(H, T).
 
-process(delay, T) ->
-   % io:format("~p delaying~n", [self()]),
-   timer:sleep(20),
+process(delay, T) -> process({delay, 25}, T);
+process({delay, Duration}, T) ->
+   timer:sleep(Duration),
    consume(T);
 
 process(wait, T) ->
