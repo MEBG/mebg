@@ -13,7 +13,7 @@ render({Template, Parameters}) -> render("en", Template, Parameters).
 % retrieve message templates from file and
 % produce a message according to arguments
 render(Language, Template, Parameters) ->
-   File = lists:concat(["message_strings_", Language, ".erl"]),
+   File = lists:concat(["i18n/message_strings_", Language, ".erl"]),
    {ok, L} = file:consult(File),
    M = maps:from_list(L),
    {Op, Elems} = maps:get(Template, M),
