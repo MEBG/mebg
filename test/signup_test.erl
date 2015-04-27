@@ -75,87 +75,117 @@ t103_signup_empty_volunteer_test() ->
 
 % volunteer present / unknown / deny
 t200_signup_deny_unknown_test() ->
-   Person = [signup, delay],
-   Volunteer = [in, wait, wait, deny, wait],
+   Person = [delay, signup, delay],
+   Volunteer = [in, wait, wait, deny, out, wait],
    Expected = [
       {"111", in}, {{hello}, "111"},
-      {"123", signup}, {{signup_unknown, [month]}, "111"},
+      {"123", signup}, {{signup_unknown, ["month"]}, "111"},
+      {"111", deny},
+      {"111", out}, {{bye}, "111"}
+   ],
+   Set = [
+      ["111", volunteer, Volunteer],
+      ["123", unknown, Person]
+   ],
+   ?assertEqual(Expected, test:run(Set)).
+
+t202_signup_approve_unknown_test() ->
+   Person = [delay, signup, wait],
+   Volunteer = [in, wait, wait, allow, out, wait],
+   Expiry = "today + one month", % todo
+   Expected = [
+      {"111", in}, {{hello}, "111"},
+      {"123", signup}, {{signup_unknown, ["month"]}, "111"},
+      {"111", allow}, {{approved, Expiry}, "123"},
       {"111", out}, {{bye}, "111"}
    ],
    Set = [
       ["123", unknown, Person],
       ["111", volunteer, Volunteer]
    ],
+   % db op to remove membership (leave no trace)
    ?assertEqual(Expected, test:run(Set)).
 
 t202_signup_approve_month_unknown_test() ->
-   Person = [signup, wait],
-   Volunteer = [in, wait, wait, allow, wait],
-   Expiry = "today + one month",
+   Person = [delay, signup, wait],
+   Volunteer = [in, wait, wait, allow, out, wait],
+   Expiry = "today + one month", % todo
    Expected = [
       {"111", in}, {{hello}, "111"},
-      {"123", signup}, {{signup_unknown, [month]}, "111"},
-      {"111", deny}, {{approved, Expiry}, "123"},
+      {"123", {signup, ["month"]}}, {{signup_unknown, ["month"]}, "111"},
+      {"111", allow}, {{approved, Expiry}, "123"},
       {"111", out}, {{bye}, "111"}
    ],
    Set = [
       ["123", unknown, Person],
       ["111", volunteer, Volunteer]
    ],
-   % db op to remove membership
-   ?assertEqual(Expected, test:run(Set)).
-
-t204_signup_approve_month_unknown_test() ->
-   Person = [{signup, [month]}, wait],
-   Volunteer = [in, wait, wait, allow, wait],
-   Expiry = "today + one month",
-   Expected = [
-      {"111", in}, {{hello}, "111"},
-      {"123", {signup, [month]}}, {{signup_unknown, [month]}, "111"},
-      {"111", deny}, {{approved, Expiry}, "123"},
-      {"111", out}, {{bye}, "111"}
-   ],
-   Set = [
-      ["123", unknown, Person],
-      ["111", volunteer, Volunteer]
-   ],
-   % db op to remove membership
+   % db op to remove membership (leave no trace)
    ?assertEqual(Expected, test:run(Set)).
 
 t206_signup_approve_year_unknown_test() ->
-   Person = [{signup, [year]}, wait],
-   Volunteer = [in, wait, wait, allow, wait],
-   Expiry = "today + one year",
+   Person = [delay, {signup, ["year"]}, wait],
+   Volunteer = [in, wait, wait, allow, out, wait],
+   Expiry = "today + one year", %todo
    Expected = [
       {"111", in}, {{hello}, "111"},
-      {"123", {signup, [year]}}, {{signup_unknown, [year]}, "111"},
-      {"111", deny}, {{approved, Expiry}, "123"},
+      {"123", {signup, ["year"]}}, {{signup_unknown, ["year"]}, "111"},
+      {"111", allow}, {{approved, Expiry}, "123"},
       {"111", out}, {{bye}, "111"}
    ],
    Set = [
       ["123", unknown, Person],
       ["111", volunteer, Volunteer]
    ],
-   % db op to remove membership
+   % db op to remove membership (leave no trace)
    ?assertEqual(Expected, test:run(Set)).
 
 t208_signup_approve_month_name_unknown_test() ->
-   Person = [{signup, [month, "John", "Doe"]}, wait],
-   Volunteer = [in, wait, wait, allow, wait],
+   Person = [delay, {signup, ["month", "John", "Doe"]}, wait],
+   Volunteer = [in, wait, wait, allow, out, wait],
    Expiry = "today + one month",
    Expected = [
       {"111", in}, {{hello}, "111"},
-      {"123", {signup, [month, "John", "Doe"]}}, {{signup_unknown, [month]}, "111"},
-      {"111", deny}, {{approved, Expiry}, "123"},
+      {"123", {signup, ["month", "John", "Doe"]}}, {{signup_unknown, ["month", "John", "Doe"]}, "111"},
+      {"111", allow}, {{approved, Expiry}, "123"},
       {"111", out}, {{bye}, "111"}
    ],
    Set = [
       ["123", unknown, Person],
       ["111", volunteer, Volunteer]
    ],
-   % db op to remove membership
+   % db op to remove membership (leave no trace)
    ?assertEqual(Expected, test:run(Set)).
 
+t210_verify_membership_valid_test() ->
+   Person = [delay, signup, wait, verify, wait],
+   Volunteer = [in, wait, wait, allow, out, wait],
+   Expiry = "today + one month", % todo
+   Expected = [
+      {"111", in}, {{hello}, "111"},
+      {"123", signup}, {{signup_unknown, ["month"]}, "111"},
+      {"111", allow}, {{approved, Expiry}, "123"},
+      {"111", out}, {{bye}, "111"},
+      {"123", verify}, {{membership_valid, Expiry}, "123"}
+   ],
+   Set = [
+      ["123", unknown, Person],
+      ["111", volunteer, Volunteer]
+   ],
+   % TODO: db op to remove membership (leave no trace)
+   ?assertEqual(Expected, test:run(Set)).
+
+t212_verify_membership_expired_test() ->
+   Person = [verify, wait],
+   Expiry = "today + one month", % todo
+   Expected = [
+      {"123", verify}, {{membership_expired, Expiry}, "123"}
+   ],
+   Set = [
+      ["123", unknown, Person]
+   ],
+   % db op to remove membership (leave no trace)
+   ?assertEqual(Expected, test:run(Set)).
 
 % Expected response per (context-source-message)
 %
