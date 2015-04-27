@@ -24,6 +24,7 @@ init() ->
 run(Set) -> run(Set, 250).
 run(Set, Timeout) ->
    relay ! empty,
+   % io:format("set: ~p~n", [Set]),
    [spawn(actor, init, [Number, Role, Script])
    || [Number, Role, Script] <- Set],
    timer:sleep(Timeout),
@@ -44,14 +45,17 @@ kill() ->
 
 % collects all received messages for later inspection
 relay(Actors, Transcript) ->
+   % io:format("[relay]: ~p / ~p~n", [Actors, Transcript]),
    receive
       % relay message from test sender to actor
       {send, Number, Message} ->
          {Actor, _} = maps:get(Number, Actors),
+         % io:format("[relay send] '~p' to ~p~n", [Message, Actor]),
          Actor ! Message,
          relay(Actors, [{Message, Number} | Transcript]);
       % add actor to active list
       {Pid, Number, Role} ->
+         % io:format("[relay add] ~p~n", [Number]),
          A1 = maps:put(Number, {Pid, Role}, Actors),
          A2 = maps:put(Pid, {Number, Role}, A1),
          relay(A2, Transcript);
@@ -67,6 +71,7 @@ relay(Actors, Transcript) ->
          Pid ! lists:reverse(Transcript),
          relay(Actors, Transcript);
       {Pid, Action} ->
+         % io:format("[relay receive] '~p' from ~p~n", [Action, Pid]),
          {Number, Role} = maps:get(Pid, Actors),
          Person = {Pid, Number, Role, null, null, null},
          coop ! {Person, Action, null},

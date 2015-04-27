@@ -19,9 +19,11 @@ loop(Mode) ->
       {mode, test} -> loop(test);
       {mode, normal} -> loop(normal);
       {send, Number, Message} when normal == Mode ->
+         % io:format("[sender live] ~p to ~p~n", [Message, Number]),
          send(Number, Message),
          loop(Mode);
       {send, Number, Message} when test == Mode ->
+         % io:format("[sender test] ~p to ~p~n", [Message, Number]),
          test_send(Number, Message),
          loop(Mode)
    end.

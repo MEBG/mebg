@@ -109,6 +109,7 @@ get_transaction_balance() ->
 % store "arrive" and "depart" instances
 set_presence(Number, Present) ->
    open(),
+   % io:format("[db:presence] ~p ~p~n",[Number, Present]),
    sqlite3:write(main, presence, [
       {present, Present},
       {timestamp, epoch()},
