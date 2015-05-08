@@ -117,6 +117,16 @@
    "Someone's coming to open the door, as soon as they get this text."
 ]}}.
 
+
+% response sent to volunteer when someone sends a signup request
+{signup_request, {random,
+   {multi, [
+      [sub, " is requesting a ", sub, " membership."],
+      [sub, " asked for a ", sub, " membership."],
+      [sub, " wants to pay for a ", sub, " membership."]
+   ]}
+}}.
+
 % response sent to unknown signup request when noone is signed in
 {signup_closed_unknown, {random, [
    "Sorry, no volunteers are signed in to handle your request right now.",
@@ -148,9 +158,10 @@
 
 {approved, {random,
    {build, {[null, null], ""}, [
-      ["Thanks for signing up! Your membership is good until ", {subject}],
-      ["Thank you for supporting the shop! You're a membership until ", {subject}],
-      ["Thanks for buying a membership - you're good until ", {subject}],
-      ["Your membership is good until ", {subject}, " - thank you!"]
+      [{"Thanks for signing up! Your membership is good until "}, {subject}],
+      [{"Thank you for supporting the shop! You're now a member until "}, {subject}],
+      [{"Thanks for buying a membership - you're good until "}, {subject}],
+      [{"Your membership expires on "}, {subject}],
+      [{"Your membership is good until "}, {subject}, " - thank you!"]
    ]}
 }}.
