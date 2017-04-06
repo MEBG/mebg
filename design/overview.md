@@ -1,11 +1,11 @@
-#mebg#
+# mebg #
 Bike shop membership / orders / inventory management
 
 * low-tech, accessible to everyone everywhere
 * cheap and durable
 
 
-##Overview##
+## Overview ##
 The main mode of interaction with the system is using text messages (via a new MEBG phone number), with a basic web app for admin, reports and general information.
 
 The focus is on a minimum set of key actions:
@@ -24,11 +24,10 @@ To support these, a few more actions are required:
 Estimated cost is $1/mo for a sms-only phone number, plus $0.0075 per text message.
 
 
-##Actions##
+## Actions ##
 Text messages sent to the MEBG phone number are interpreted as commands: action name followed by parameters. Each person interacting with the system is recognized by their phone number. To mirror the current structure, a person can be a Volunteer, a Member, or Unrecognized. Each class of user can invoke certain actions.
 
-
-###Actions from Unrecognized persons###
+### Actions from Unrecognized persons ###
 A person with no membership can:
 
 * check if coop is open: `STATUS`
@@ -40,7 +39,7 @@ A membership request will be pending until an on-shift volunteer acknowledges re
 
 A volunteer signup request is approved when all current volunteers respond with approval.
 
-###Member actions###
+### Member actions ###
 A person with a membership can also:
 
 * check if their membership is still valid: `VERIFY`
@@ -51,14 +50,14 @@ A person with a membership can also:
 
 Any renewal request or deposit request will be pending until an on-shift volunteer acknowledges receipt of cash.
 
-###Volunteer actions###
+### Volunteer actions ###
 Actions available to volunteers fall into three categories:
 
 * basic actions like order, deposit etc
 * schedule-related actions
 * responses to member requests
 
-####Basic actions####
+#### Basic actions ####
 Volunteers can invoke most of the Member actions:
 
 * deposit (does not require confirmation)
@@ -71,7 +70,7 @@ Additionally, volunteers can:
 * order supplies for the shop: `RESTOCK <sku>`
 * receive cash from members `RECEIVE <amount>`
 
-####Schedule actions####
+#### Schedule actions ####
 A volunteer can notify the system of their presence at the shop by signing in and out. This allows the system to route member requests to volunteers which are present. The two actions are:
 
 * begin shift: `ARRIVE`
@@ -91,7 +90,7 @@ Sometimes a volunteer may not be available for a long time (vacation, busy with 
 * go away (no more messages / struck from schedule): `AWAY`
 * return (reactivate all interactions): `BACK`
 
-####Response actions####
+#### Response actions ####
 On-shift volunteer(s) will receive membership / renewal / deposit requests via the system, one request per volunteer at a time. They can respond in the affirmative to acknowledge receipt of funds from the member, or in the negative to dismiss the request as unfulfilled. In the affirmative case, the member receives a text message that constitutes a receipt.
 
 The action keywords are:
@@ -100,7 +99,7 @@ The action keywords are:
 * deny: `DENY`
 
 
-##Reports##
+## Reports ##
 Reports are available via the web app. Since interactions with the web app can reveal potentially confidential information (as well as affect balances and part counts) authentication is required. 
 
 To authenticate in browser:
@@ -112,16 +111,16 @@ To authenticate in browser:
 
 Your device will remain authenticated (unless you clear cache etc) so this should be an infrequent interaction.
 
-###Order list report###
+### Order list report ###
 This report allows a volunteer to review the list of ordered parts, and check off specific parts as bought / delivered.
 When parts are marked as delivered, the system will send notification texts to members who ordered these parts.
 
-###Other reports###
+### Other reports ###
 * memberships
 * income from stock sold
 * inventory
 
-##General info##
+## General info ##
 A landing page for non-authenticated visitors:
 
 * logo, address, hours
