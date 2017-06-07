@@ -50,7 +50,7 @@
 {schedule,
    {random,
       {build, {[null, null], ""}, [
-         [{"18h-21h "}, {subject}]
+         [{"19h-22h "}, {subject}]
       ]}
    }
 }.
@@ -69,7 +69,7 @@
 ]}}.
 
 {late, {random, [
-   "Usually open from 6pm to 9pm.. But, not right now, sorry!",
+   "Usually open from 7pm to 10pm.. But, not right now, sorry!",
    "The bike coop is supposed to be open right now, but no one is here yet. Our apologies..",
    "Sorry, we should be open but no volunteers showed up yet.."
 ]}}.

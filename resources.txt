@@ -1,2 +1,0 @@
-Twillio:
-  sms pricing: https://www.twilio.com/sms/pricing
